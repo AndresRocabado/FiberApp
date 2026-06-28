@@ -8,9 +8,16 @@ class NodeService:
     def __init__(self, repository: Optional[NodeRepository] = None) -> None:
         self._repo = repository or NodeRepository()
 
+    @staticmethod
+    def normalize_city(city: str) -> str:
+        return city.strip().title()
+
+    def get_all_cities(self) -> list:
+        return self._repo.get_all_cities()
+
     def create_node(self, name: str, city: str, node_type: str, status: str) -> Node:
         name = name.strip()
-        city = city.strip()
+        city = self.normalize_city(city)
         if not name or not city:
             raise ValueError("El nombre y la ciudad son obligatorios")
         if self._repo.exists_by_name(name):
@@ -37,7 +44,7 @@ class NodeService:
 
     def update_node(self, node_id: int, name: str, city: str, node_type: str, status: str) -> Node:
         name = name.strip()
-        city = city.strip()
+        city = self.normalize_city(city)
         if not name or not city:
             raise ValueError("El nombre y la ciudad son obligatorios")
         node = self.get_node(node_id)

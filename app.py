@@ -159,22 +159,43 @@ def page_nodes():
 
     with tab_create:
         st.subheader("Crear Nuevo Nodo")
+
+        if "create_node_msg" in st.session_state:
+            st.success(st.session_state.pop("create_node_msg"))
+
+        existing_cities = node_service.get_all_cities()
+        city_opts_create = existing_cities + ["-- Escribir nueva ciudad --"]
+        sel_city_create = st.selectbox(
+            "Ciudad *",
+            city_opts_create,
+            index=len(city_opts_create) - 1 if not existing_cities else 0,
+            key="create_city_sel",
+        )
+        if sel_city_create == "-- Escribir nueva ciudad --":
+            city_create = st.text_input("Ciudad *", placeholder="Escribir nueva ciudad...", key="create_city_txt")
+        else:
+            city_create = sel_city_create
+
         with st.form("form_create_node", clear_on_submit=True):
             name      = st.text_input("Nombre *")
-            city      = st.text_input("Ciudad *")
             node_type = st.selectbox("Tipo de Nodo", NODE_TYPES)
             status    = st.selectbox("Estado Operativo", NODE_STATUSES)
             submitted = st.form_submit_button("Crear Nodo")
 
         if submitted:
             try:
-                node = node_service.create_node(name, city, node_type, status)
-                st.success(f"Nodo '{node.name}' creado correctamente (ID {node.id})")
+                node = node_service.create_node(name, city_create, node_type, status)
+                st.session_state["create_node_msg"] = f"Nodo '{node.name}' creado correctamente (ID {node.id})"
+                st.rerun()
             except ValueError as exc:
                 st.error(str(exc))
 
     with tab_edit:
         st.subheader("Editar Nodo")
+
+        if "edit_node_msg" in st.session_state:
+            st.success(st.session_state.pop("edit_node_msg"))
+
         nodes = node_service.get_all_nodes()
         if not nodes:
             st.info("No hay nodos para editar")
@@ -183,17 +204,34 @@ def page_nodes():
             chosen  = st.selectbox("Seleccionar Nodo", list(labels.keys()), key="sel_edit_node")
             sel     = labels[chosen]
 
+            existing_cities = node_service.get_all_cities()
+            if sel.city not in existing_cities:
+                existing_cities = [sel.city] + existing_cities
+            city_opts_edit = existing_cities + ["-- Escribir nueva ciudad --"]
+            default_city_idx = existing_cities.index(sel.city) if sel.city in existing_cities else 0
+
+            sel_city_edit = st.selectbox(
+                "Ciudad *",
+                city_opts_edit,
+                index=default_city_idx,
+                key=f"edit_city_sel_{sel.id}",
+            )
+            if sel_city_edit == "-- Escribir nueva ciudad --":
+                city_edit = st.text_input("Ciudad *", placeholder="Escribir nueva ciudad...", key=f"edit_city_txt_{sel.id}")
+            else:
+                city_edit = sel_city_edit
+
             with st.form("form_edit_node"):
-                name      = st.text_input("Nombre",         value=sel.name)
-                city      = st.text_input("Ciudad",         value=sel.city)
-                node_type = st.selectbox("Tipo de Nodo",    NODE_TYPES, index=NODE_TYPES.index(sel.node_type.value))
-                status    = st.selectbox("Estado",          NODE_STATUSES, index=NODE_STATUSES.index(sel.status.value))
+                name      = st.text_input("Nombre",      value=sel.name)
+                node_type = st.selectbox("Tipo de Nodo", NODE_TYPES, index=NODE_TYPES.index(sel.node_type.value))
+                status    = st.selectbox("Estado",       NODE_STATUSES, index=NODE_STATUSES.index(sel.status.value))
                 submitted = st.form_submit_button("Guardar Cambios")
 
             if submitted:
                 try:
-                    updated = node_service.update_node(sel.id, name, city, node_type, status)
-                    st.success(f"Nodo '{updated.name}' actualizado correctamente")
+                    updated = node_service.update_node(sel.id, name, city_edit, node_type, status)
+                    st.session_state["edit_node_msg"] = f"Nodo '{updated.name}' actualizado correctamente"
+                    st.rerun()
                 except ValueError as exc:
                     st.error(str(exc))
 

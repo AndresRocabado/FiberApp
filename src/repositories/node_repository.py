@@ -42,6 +42,13 @@ class NodeRepository(BaseRepository[Node]):
             cursor = conn.execute("DELETE FROM nodes WHERE id = ?", (node_id,))
             return cursor.rowcount > 0
 
+    def get_all_cities(self) -> list:
+        with get_connection() as conn:
+            rows = conn.execute(
+                "SELECT DISTINCT city FROM nodes ORDER BY city"
+            ).fetchall()
+        return [r["city"] for r in rows]
+
     def exists_by_name(self, name: str, exclude_id: Optional[int] = None) -> bool:
         if exclude_id is not None:
             sql = "SELECT 1 FROM nodes WHERE name = ? AND id != ?"

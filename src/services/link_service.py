@@ -36,6 +36,7 @@ class LinkService:
         distance_km: float,
         capacity_gbps: float,
         status: str,
+        name: Optional[str] = None,
     ) -> FiberLink:
         self._validate_nodes(origin_id, destination_id)
         self._validate_metrics(distance_km, capacity_gbps)
@@ -45,6 +46,7 @@ class LinkService:
             distance_km=distance_km,
             capacity_gbps=capacity_gbps,
             status=LinkStatus(status),
+            name=name.strip() if name and name.strip() else None,
         )
         return self._links.create(link)
 
@@ -68,6 +70,7 @@ class LinkService:
         distance_km: float,
         capacity_gbps: float,
         status: str,
+        name: Optional[str] = None,
     ) -> FiberLink:
         link = self.get_link(link_id)
         self._validate_nodes(origin_id, destination_id)
@@ -77,6 +80,7 @@ class LinkService:
         link.distance_km         = distance_km
         link.capacity_gbps       = capacity_gbps
         link.status              = LinkStatus(status)
+        link.name                = name.strip() if name and name.strip() else None
         return self._links.update(link)
 
     def delete_link(self, link_id: int) -> bool:

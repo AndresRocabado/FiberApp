@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS fiber_links (
     distance_km         REAL    NOT NULL,
     capacity_gbps       REAL    NOT NULL,
     status              TEXT    NOT NULL DEFAULT 'Activo',
+    name                TEXT,
     created_at          TEXT    NOT NULL DEFAULT (datetime('now')),
     FOREIGN KEY (origin_node_id)      REFERENCES nodes(id) ON DELETE RESTRICT,
     FOREIGN KEY (destination_node_id) REFERENCES nodes(id) ON DELETE RESTRICT,
@@ -36,3 +37,7 @@ def initialize_database(drop_existing: bool = False) -> None:
             conn.execute("DROP TABLE IF EXISTS nodes")
         conn.execute(_CREATE_NODES)
         conn.execute(_CREATE_LINKS)
+        try:
+            conn.execute("ALTER TABLE fiber_links ADD COLUMN name TEXT")
+        except Exception:
+            pass

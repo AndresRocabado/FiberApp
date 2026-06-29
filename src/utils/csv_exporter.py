@@ -31,7 +31,7 @@ def export_links_to_csv(links: List[FiberLink]) -> str:
     writer = csv.DictWriter(
         output,
         fieldnames=[
-            "id", "nodo_origen", "nodo_destino",
+            "id", "nombre", "nodo_origen", "nodo_destino",
             "distancia_km", "capacidad_gbps", "estado", "fecha_creacion",
         ],
     )
@@ -39,6 +39,7 @@ def export_links_to_csv(links: List[FiberLink]) -> str:
     for lnk in links:
         writer.writerow({
             "id":             lnk.id,
+            "nombre":         lnk.name or "",
             "nodo_origen":    lnk.origin_node_name or lnk.origin_node_id,
             "nodo_destino":   lnk.destination_node_name or lnk.destination_node_id,
             "distancia_km":   lnk.distance_km,

@@ -58,6 +58,7 @@ def links_to_df(links):
         return pd.DataFrame()
     return pd.DataFrame([{
         "ID":              lnk.id,
+        "Nombre":          lnk.name or "",
         "Origen":          lnk.origin_node_name or lnk.origin_node_id,
         "Destino":         lnk.destination_node_name or lnk.destination_node_id,
         "Distancia (km)":  lnk.distance_km,
@@ -65,6 +66,13 @@ def links_to_df(links):
         "Estado":          lnk.status.value,
         "Creado":          lnk.created_at,
     } for lnk in links])
+
+
+def _link_label(lnk) -> str:
+    route = f"{lnk.origin_node_name} -> {lnk.destination_node_name}"
+    if lnk.name:
+        return f"{lnk.id} - {lnk.name} ({route})"
+    return f"{lnk.id} - {route}"
 
 
 def _node_label(node):
@@ -300,6 +308,7 @@ def page_links():
     with tab_create:
         st.subheader("Crear Nuevo Enlace")
         with st.form("form_create_link", clear_on_submit=True):
+            name        = st.text_input("Nombre del enlace")
             origin      = st.selectbox("Nodo Origen *",   node_labels, key="c_origin")
             destination = st.selectbox("Nodo Destino *",  node_labels, index=1, key="c_dest")
             distance    = st.number_input("Distancia (km) *",    min_value=0.01, value=1.0,  step=0.1,  format="%.2f")
@@ -311,7 +320,7 @@ def page_links():
             try:
                 lnk = link_service.create_link(
                     node_map[origin], node_map[destination],
-                    distance, capacity, status,
+                    distance, capacity, status, name,
                 )
                 st.success(f"Enlace ID {lnk.id} creado correctamente")
             except ValueError as exc:
@@ -323,10 +332,7 @@ def page_links():
         if not links:
             st.info("No hay enlaces para editar")
         else:
-            link_opts = {
-                f"{lnk.id} - {lnk.origin_node_name} -> {lnk.destination_node_name}": lnk
-                for lnk in links
-            }
+            link_opts = {_link_label(lnk): lnk for lnk in links}
             chosen = st.selectbox("Seleccionar Enlace", list(link_opts.keys()), key="sel_edit_link")
             sel    = link_opts[chosen]
 
@@ -334,6 +340,7 @@ def page_links():
             dest_lbl = find_label(sel.destination_node_id)
 
             with st.form("form_edit_link"):
+                name        = st.text_input("Nombre del enlace", value=sel.name or "")
                 origin      = st.selectbox("Nodo Origen",   node_labels, index=node_labels.index(orig_lbl))
                 destination = st.selectbox("Nodo Destino",  node_labels, index=node_labels.index(dest_lbl))
                 distance    = st.number_input("Distancia (km)",    min_value=0.01, value=float(sel.distance_km),    step=0.1,  format="%.2f")
@@ -345,7 +352,7 @@ def page_links():
                 try:
                     updated = link_service.update_link(
                         sel.id, node_map[origin], node_map[destination],
-                        distance, capacity, status,
+                        distance, capacity, status, name,
                     )
                     st.success(f"Enlace ID {updated.id} actualizado correctamente")
                 except ValueError as exc:
@@ -357,10 +364,7 @@ def page_links():
         if not links:
             st.info("No hay enlaces para eliminar")
         else:
-            link_opts = {
-                f"{lnk.id} - {lnk.origin_node_name} -> {lnk.destination_node_name}": lnk.id
-                for lnk in links
-            }
+            link_opts = {_link_label(lnk): lnk.id for lnk in links}
             chosen = st.selectbox("Seleccionar Enlace a Eliminar", list(link_opts.keys()), key="sel_del_link")
             st.warning("Esta accion es irreversible.")
 

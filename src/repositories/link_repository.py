@@ -19,13 +19,13 @@ class LinkRepository(BaseRepository[FiberLink]):
     def create(self, link: FiberLink) -> FiberLink:
         sql = """
             INSERT INTO fiber_links
-                (origin_node_id, destination_node_id, distance_km, capacity_gbps, status)
-            VALUES (?, ?, ?, ?, ?)
+                (origin_node_id, destination_node_id, distance_km, capacity_gbps, status, name)
+            VALUES (?, ?, ?, ?, ?, ?)
         """
         with get_connection() as conn:
             cursor = conn.execute(sql, (
                 link.origin_node_id, link.destination_node_id,
-                link.distance_km, link.capacity_gbps, link.status.value,
+                link.distance_km, link.capacity_gbps, link.status.value, link.name,
             ))
             link.id = cursor.lastrowid
         return link
@@ -58,13 +58,13 @@ class LinkRepository(BaseRepository[FiberLink]):
         sql = """
             UPDATE fiber_links
             SET origin_node_id = ?, destination_node_id = ?,
-                distance_km = ?, capacity_gbps = ?, status = ?
+                distance_km = ?, capacity_gbps = ?, status = ?, name = ?
             WHERE id = ?
         """
         with get_connection() as conn:
             conn.execute(sql, (
                 link.origin_node_id, link.destination_node_id,
-                link.distance_km, link.capacity_gbps, link.status.value, link.id,
+                link.distance_km, link.capacity_gbps, link.status.value, link.name, link.id,
             ))
         return link
 

@@ -3,6 +3,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import altair as alt
 import pandas as pd
 import streamlit as st
 
@@ -75,6 +76,43 @@ def _link_label(lnk) -> str:
     return f"{lnk.id} - {route}"
 
 
+STATUS_COLORS = {
+    "Activo":        "#28a745",
+    "Inactivo":      "#dc3545",
+    "Mantenimiento": "#ffc107",
+}
+
+
+def render_link_status_chart(report):
+    rows = [
+        {"Estado": "Activo",        "Cantidad": report.active_links},
+        {"Estado": "Inactivo",      "Cantidad": report.inactive_links},
+        {"Estado": "Mantenimiento", "Cantidad": report.maintenance_links},
+    ]
+    df = pd.DataFrame([r for r in rows if r["Cantidad"] > 0])
+    if df.empty:
+        st.info("Sin datos de enlaces")
+        return
+
+    chart = (
+        alt.Chart(df)
+        .mark_bar()
+        .encode(
+            x=alt.X("Estado", sort=list(STATUS_COLORS.keys())),
+            y="Cantidad",
+            color=alt.Color(
+                "Estado",
+                scale=alt.Scale(
+                    domain=list(STATUS_COLORS.keys()),
+                    range=list(STATUS_COLORS.values()),
+                ),
+                legend=None,
+            ),
+        )
+    )
+    st.altair_chart(chart, use_container_width=True)
+
+
 def _node_label(node):
     return f"{node.id} - {node.name} ({node.city})"
 
@@ -125,19 +163,7 @@ def page_dashboard():
 
     with col_right:
         st.subheader("Estado de Enlaces")
-        status_data = {
-            "Activo":        report.active_links,
-            "Inactivo":      report.inactive_links,
-            "Mantenimiento": report.maintenance_links,
-        }
-        df = pd.DataFrame(
-            [(k, v) for k, v in status_data.items() if v > 0],
-            columns=["Estado", "Cantidad"],
-        )
-        if not df.empty:
-            st.bar_chart(df.set_index("Estado"))
-        else:
-            st.info("Sin datos de enlaces")
+        render_link_status_chart(report)
 
 
 # ---------------------------------------------------------------------------

@@ -157,7 +157,15 @@ def page_dashboard():
                 list(report.nodes_by_city.items()),
                 columns=["Ciudad", "Nodos"],
             )
-            st.bar_chart(df.set_index("Ciudad"))
+            chart = (
+                alt.Chart(df)
+                .mark_bar()
+                .encode(
+                    x=alt.X("Ciudad", sort="-y"),
+                    y=alt.Y("Nodos", scale=alt.Scale(domainMin=0)),
+                )
+            )
+            st.altair_chart(chart, use_container_width=True)
         else:
             st.info("Sin datos de nodos")
 

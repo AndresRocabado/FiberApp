@@ -143,22 +143,34 @@ def _node_label(node):
 
 
 # ---------------------------------------------------------------------------
+# Top bar — language switcher (upper right)
+# ---------------------------------------------------------------------------
+
+st.markdown("""
+<style>
+.block-container { padding-top: 0.6rem !important; }
+</style>
+""", unsafe_allow_html=True)
+
+_, _col_lang = st.columns([11.5, 0.5])
+_cur = st.session_state["lang"]
+with _col_lang:
+    _flag = "🇪🇸" if _cur == "es" else "🇺🇸"
+    with st.popover(_flag, use_container_width=True):
+        if st.button("🇪🇸  Español", key="lang_es", use_container_width=True,
+                     type="primary" if _cur == "es" else "secondary"):
+            st.session_state["lang"] = "es"
+            st.rerun()
+        if st.button("🇺🇸  English", key="lang_en", use_container_width=True,
+                     type="primary" if _cur == "en" else "secondary"):
+            st.session_state["lang"] = "en"
+            st.rerun()
+
+# ---------------------------------------------------------------------------
 # Sidebar navigation
 # ---------------------------------------------------------------------------
 
 st.sidebar.title(T("app_title"))
-st.sidebar.markdown("---")
-
-lang_choice = st.sidebar.selectbox(
-    T("lang_label"),
-    ["Español", "English"],
-    index=0 if st.session_state["lang"] == "es" else 1,
-)
-new_lang = "es" if lang_choice == "Español" else "en"
-if new_lang != st.session_state["lang"]:
-    st.session_state["lang"] = new_lang
-    st.rerun()
-
 st.sidebar.markdown("---")
 
 _NAV_PAGES = ["dashboard", "nodes", "links", "reports"]

@@ -37,8 +37,15 @@
 
     <!-- Topbar -->
     <header class="topbar">
-        <button class="lang-btn" id="btn-es" title="Español">🇪🇸</button>
-        <button class="lang-btn" id="btn-en" title="English">🇺🇸</button>
+        <div class="lang-dropdown" id="lang-dropdown">
+            <button class="lang-trigger" id="lang-trigger">
+                🌐 <span id="lang-current">ES</span> <span class="lang-arrow">▾</span>
+            </button>
+            <div class="lang-menu" id="lang-menu">
+                <button class="lang-option" id="btn-es">🇪🇸 Español</button>
+                <button class="lang-option" id="btn-en">🇺🇸 English</button>
+            </div>
+        </div>
     </header>
 
     <!-- Page content -->
@@ -121,6 +128,7 @@ function applyI18n() {
         el.textContent = I18n.t(el.dataset.i18n);
     });
     const lang = I18n.currentLang();
+    document.getElementById("lang-current").textContent = lang.toUpperCase();
     document.getElementById("btn-es").classList.toggle("active", lang === "es");
     document.getElementById("btn-en").classList.toggle("active", lang === "en");
 }
@@ -128,8 +136,21 @@ function applyI18n() {
 async function setLang(lang) {
     await I18n.load(lang);
     applyI18n();
+    closeLangMenu();
     navigate(currentPage);
 }
+
+// Dropdown toggle
+const langTrigger = document.getElementById("lang-trigger");
+const langMenu    = document.getElementById("lang-menu");
+
+function closeLangMenu() { langMenu.classList.remove("open"); }
+
+langTrigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    langMenu.classList.toggle("open");
+});
+document.addEventListener("click", closeLangMenu);
 
 document.getElementById("btn-es").addEventListener("click", () => setLang("es"));
 document.getElementById("btn-en").addEventListener("click", () => setLang("en"));

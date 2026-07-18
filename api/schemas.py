@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class NodeCreate(BaseModel):
@@ -22,7 +22,7 @@ class NodeOut(BaseModel):
     city:       str
     node_type:  str
     status:     str
-    created_at: str
+    created_at: Optional[str] = None
 
 
 class LinkCreate(BaseModel):
@@ -53,7 +53,7 @@ class LinkOut(BaseModel):
     distance_km:          float
     capacity_gbps:        float
     status:               str
-    created_at:           str
+    created_at:           Optional[str] = None
 
 
 class ReportOut(BaseModel):

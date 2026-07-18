@@ -275,6 +275,12 @@ body {
 .empty-msg { text-align: center; color: var(--text-muted); padding: 2rem !important; }
 .row-actions { display: flex; gap: .4rem; justify-content: flex-end; }
 
+.data-table th.sortable { cursor: pointer; user-select: none; white-space: nowrap; }
+.data-table th.sortable:hover { background: #edf2f7; }
+.sort-icon { margin-left: 4px; font-size: .65rem; color: var(--text-muted); }
+.data-table th.sort-asc .sort-icon,
+.data-table th.sort-desc .sort-icon { color: var(--primary); }
+
 /* ─── Badges ────────────────────────────────────────────────────────────── */
 .badge {
     display: inline-block;

@@ -20,6 +20,16 @@ def list_cities():
     return _svc.get_all_cities()
 
 
+@router.get("/export/csv", response_class=PlainTextResponse)
+def export_nodes():
+    nodes = _svc.get_all_nodes()
+    return PlainTextResponse(
+        content=export_nodes_to_csv(nodes),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=nodos.csv"},
+    )
+
+
 @router.get("/{node_id}", response_model=NodeOut)
 def get_node(node_id: int):
     node = _svc.get_node(node_id)
@@ -52,16 +62,6 @@ def delete_node(node_id: int):
         _svc.delete_node(node_id)
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc))
-
-
-@router.get("/export/csv", response_class=PlainTextResponse)
-def export_nodes():
-    nodes = _svc.get_all_nodes()
-    return PlainTextResponse(
-        content=export_nodes_to_csv(nodes),
-        media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=nodos.csv"},
-    )
 
 
 def _to_out(node) -> dict:

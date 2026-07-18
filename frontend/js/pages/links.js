@@ -1,10 +1,83 @@
 async function renderLinks(container) {
     const { t } = I18n;
+    let _links = [], _nodes = [];
+    let _sortCol = null, _sortDir = 1;
+
+    const COLS = [
+        { key: "id",                    label: () => t("col_id") },
+        { key: "name",                  label: () => t("col_name") },
+        { key: "origin_node_name",      label: () => t("col_origin") },
+        { key: "destination_node_name", label: () => t("col_destination") },
+        { key: "distance_km",           label: () => t("col_distance") },
+        { key: "capacity_gbps",         label: () => t("col_capacity") },
+        { key: "status",                label: () => t("col_status") },
+        { key: "created_at",            label: () => t("col_created") },
+    ];
+
+    function renderHeaders() {
+        const thead = document.getElementById("links-thead");
+        thead.innerHTML = `<tr>
+            ${COLS.map(c => `
+                <th class="sortable${_sortCol === c.key ? (_sortDir === 1 ? " sort-asc" : " sort-desc") : ""}" data-col="${c.key}">
+                    ${c.label()} <span class="sort-icon">${_sortCol === c.key ? (_sortDir === 1 ? "↑" : "↓") : "↕"}</span>
+                </th>`).join("")}
+            <th></th>
+        </tr>`;
+        thead.querySelectorAll(".sortable").forEach(th => {
+            th.addEventListener("click", () => {
+                if (_sortCol === th.dataset.col) _sortDir *= -1;
+                else { _sortCol = th.dataset.col; _sortDir = 1; }
+                renderHeaders();
+                renderRows();
+            });
+        });
+    }
+
+    function renderRows() {
+        const tbody = document.getElementById("links-tbody");
+        const sorted = sortArray(_links, _sortCol, _sortDir);
+        tbody.innerHTML = sorted.length === 0
+            ? `<tr><td colspan="9" class="empty-msg">${t("links_empty")}</td></tr>`
+            : sorted.map(lnk => `
+                <tr>
+                    <td>${lnk.id}</td>
+                    <td>${lnk.name ?? ""}</td>
+                    <td>${lnk.origin_node_name ?? lnk.origin_node_id}</td>
+                    <td>${lnk.destination_node_name ?? lnk.destination_node_id}</td>
+                    <td>${lnk.distance_km.toFixed(2)}</td>
+                    <td>${lnk.capacity_gbps.toFixed(1)}</td>
+                    <td><span class="badge badge-${statusClass(lnk.status)}">${lnk.status}</span></td>
+                    <td>${lnk.created_at}</td>
+                    <td class="row-actions">
+                        <button class="btn btn-sm btn-outline btn-edit-link" data-id="${lnk.id}">✏️</button>
+                        <button class="btn btn-sm btn-danger btn-delete-link" data-id="${lnk.id}">🗑️</button>
+                    </td>
+                </tr>`).join("");
+
+        tbody.querySelectorAll(".btn-edit-link").forEach(btn => {
+            btn.onclick = async () => {
+                const lnk = await API.getLink(+btn.dataset.id);
+                showLinkForm(lnk, _nodes, reload);
+            };
+        });
+        tbody.querySelectorAll(".btn-delete-link").forEach(btn => {
+            btn.onclick = () => confirmDelete(
+                t("confirm_delete_link"),
+                async () => { await API.deleteLink(+btn.dataset.id); showToast(t("msg_link_deleted")); reload(); }
+            );
+        });
+    }
+
+    async function reload() {
+        [_links, _nodes] = await Promise.all([API.getLinks(), API.getNodes()]);
+        renderHeaders();
+        renderRows();
+    }
 
     async function draw() {
-        const [links, nodes] = await Promise.all([API.getLinks(), API.getNodes()]);
+        [_links, _nodes] = await Promise.all([API.getLinks(), API.getNodes()]);
 
-        if (nodes.length < 2) {
+        if (_nodes.length < 2) {
             container.innerHTML = `
                 <h1 class="page-title">${t("links_title")}</h1>
                 <div class="alert alert-warning">${t("warn_need_2_nodes") ?? "Se necesitan al menos 2 nodos."}</div>
@@ -17,65 +90,21 @@ async function renderLinks(container) {
                 <h1 class="page-title">${t("links_title")}</h1>
                 <button class="btn btn-primary" id="btn-new-link">+ ${t("link_new")}</button>
             </div>
-
             <div id="link-form-area"></div>
-
             <div class="table-toolbar">
                 <a href="${API.exportLinksUrl()}" class="btn btn-outline" download>${t("btn_export_csv")}</a>
             </div>
-
             <div class="table-wrapper">
                 <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>${t("col_id")}</th>
-                            <th>${t("col_name")}</th>
-                            <th>${t("col_origin")}</th>
-                            <th>${t("col_destination")}</th>
-                            <th>${t("col_distance")}</th>
-                            <th>${t("col_capacity")}</th>
-                            <th>${t("col_status")}</th>
-                            <th>${t("col_created")}</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${links.length === 0
-                            ? `<tr><td colspan="9" class="empty-msg">${t("links_empty")}</td></tr>`
-                            : links.map(lnk => `
-                                <tr>
-                                    <td>${lnk.id}</td>
-                                    <td>${lnk.name ?? ""}</td>
-                                    <td>${lnk.origin_node_name ?? lnk.origin_node_id}</td>
-                                    <td>${lnk.destination_node_name ?? lnk.destination_node_id}</td>
-                                    <td>${lnk.distance_km.toFixed(2)}</td>
-                                    <td>${lnk.capacity_gbps.toFixed(1)}</td>
-                                    <td><span class="badge badge-${statusClass(lnk.status)}">${lnk.status}</span></td>
-                                    <td>${lnk.created_at}</td>
-                                    <td class="row-actions">
-                                        <button class="btn btn-sm btn-outline btn-edit-link" data-id="${lnk.id}">✏️</button>
-                                        <button class="btn btn-sm btn-danger btn-delete-link" data-id="${lnk.id}">🗑️</button>
-                                    </td>
-                                </tr>`).join("")
-                        }
-                    </tbody>
+                    <thead id="links-thead"></thead>
+                    <tbody id="links-tbody"></tbody>
                 </table>
             </div>
         `;
 
-        document.getElementById("btn-new-link").onclick = () => showLinkForm(null, nodes, draw);
-        document.querySelectorAll(".btn-edit-link").forEach(btn => {
-            btn.onclick = async () => {
-                const lnk = await API.getLink(+btn.dataset.id);
-                showLinkForm(lnk, nodes, draw);
-            };
-        });
-        document.querySelectorAll(".btn-delete-link").forEach(btn => {
-            btn.onclick = () => confirmDelete(
-                t("confirm_delete_link"),
-                async () => { await API.deleteLink(+btn.dataset.id); showToast(t("msg_link_deleted")); draw(); }
-            );
-        });
+        document.getElementById("btn-new-link").onclick = () => showLinkForm(null, _nodes, reload);
+        renderHeaders();
+        renderRows();
     }
 
     await draw();
@@ -85,7 +114,11 @@ function showLinkForm(link, nodes, onSave) {
     const { t } = I18n;
     const isEdit      = link !== null;
     const area        = document.getElementById("link-form-area");
-    const LINK_STATUS = ["Activo", "Inactivo", "Mantenimiento"];
+    const LINK_STATUS = [
+        { value: "Activo",        label: t("status_active") },
+        { value: "Inactivo",      label: t("status_inactive") },
+        { value: "Mantenimiento", label: t("status_maintenance") },
+    ];
 
     const nodeOptions = (selectedId) =>
         nodes.map(n => `<option value="${n.id}" ${n.id === selectedId ? "selected" : ""}>${n.id} - ${n.name} (${n.city})</option>`).join("");
@@ -100,9 +133,9 @@ function showLinkForm(link, nodes, onSave) {
                         <input name="name" value="${isEdit ? (link.name ?? "") : ""}">
                     </div>
                     <div class="form-group">
-                        <label>${t("lbl_link_status")}</label>
+<label>${t("lbl_link_status")}</label>
                         <select name="status">
-                            ${LINK_STATUS.map(s => `<option ${isEdit && link.status === s ? "selected" : ""}>${s}</option>`).join("")}
+                            ${LINK_STATUS.map(s => `<option value="${s.value}" ${isEdit && link.status === s.value ? "selected" : ""}>${s.label}</option>`).join("")}
                         </select>
                     </div>
                     <div class="form-group">

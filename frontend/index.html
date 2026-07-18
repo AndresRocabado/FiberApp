@@ -94,6 +94,17 @@ function showToast(msg) {
     setTimeout(() => el.remove(), 3000);
 }
 
+function sortArray(arr, col, dir) {
+    if (!col) return arr;
+    return [...arr].sort((a, b) => {
+        let va = a[col] ?? "";
+        let vb = b[col] ?? "";
+        if (typeof va === "string") va = va.toLowerCase();
+        if (typeof vb === "string") vb = vb.toLowerCase();
+        return va < vb ? -dir : va > vb ? dir : 0;
+    });
+}
+
 function confirmDelete(message, onConfirm) {
     const overlay = document.getElementById("modal-overlay");
     document.getElementById("modal-msg").textContent = message;

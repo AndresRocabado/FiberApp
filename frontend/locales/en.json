@@ -67,6 +67,11 @@
   "report_nodes_by_city": "Nodes by City",
   "col_city_count": "Node Count",
   "report_export": "Export Data",
+  "node_type_central":      "Central",
+  "node_type_distribution": "Distribution",
+  "node_type_access":       "Access",
+  "node_type_terminal":     "Terminal",
+
   "btn_export_nodes": "Export Nodes CSV",
   "btn_export_links": "Export Links CSV",
   "btn_export_report": "Export Report CSV"

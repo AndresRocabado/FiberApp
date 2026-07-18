@@ -15,6 +15,16 @@ def list_links():
     return [_to_out(lnk) for lnk in links]
 
 
+@router.get("/export/csv", response_class=PlainTextResponse)
+def export_links():
+    links = _svc.get_all_links()
+    return PlainTextResponse(
+        content=export_links_to_csv(links),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=enlaces.csv"},
+    )
+
+
 @router.get("/{link_id}", response_model=LinkOut)
 def get_link(link_id: int):
     lnk = _svc.get_link(link_id)
@@ -54,16 +64,6 @@ def delete_link(link_id: int):
         _svc.delete_link(link_id)
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc))
-
-
-@router.get("/export/csv", response_class=PlainTextResponse)
-def export_links():
-    links = _svc.get_all_links()
-    return PlainTextResponse(
-        content=export_links_to_csv(links),
-        media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=enlaces.csv"},
-    )
 
 
 def _to_out(lnk) -> dict:

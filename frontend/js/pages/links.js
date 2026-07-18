@@ -168,6 +168,9 @@ function showLinkForm(link, nodes, onSave) {
         </div>
     `;
 
+    const topOffset = (document.querySelector('.topbar')?.offsetHeight ?? 56) + 16;
+    window.scrollTo({ top: area.getBoundingClientRect().top + window.pageYOffset - topOffset, behavior: 'smooth' });
+
     document.getElementById("btn-cancel-link").onclick = () => area.innerHTML = "";
     document.getElementById("link-form").onsubmit = async (e) => {
         e.preventDefault();
@@ -180,13 +183,14 @@ function showLinkForm(link, nodes, onSave) {
             status:              fd.get("status"),
             name:                fd.get("name") || null,
         };
+        const label = body.name ? `"${body.name}" ` : '';
         try {
             if (isEdit) {
                 await API.updateLink(link.id, body);
-                showToast(t("msg_link_updated"));
+                showToast(`${label}${t("msg_link_updated")}`);
             } else {
                 await API.createLink(body);
-                showToast(t("msg_link_created"));
+                showToast(`${label}${t("msg_link_created")}`);
             }
             area.innerHTML = "";
             onSave();

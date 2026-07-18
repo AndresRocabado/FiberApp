@@ -153,6 +153,9 @@ function showNodeForm(node, cities, onSave) {
         </div>
     `;
 
+    const topOffset = (document.querySelector('.topbar')?.offsetHeight ?? 56) + 16;
+    window.scrollTo({ top: area.getBoundingClientRect().top + window.pageYOffset - topOffset, behavior: 'smooth' });
+
     document.getElementById("btn-cancel-node").onclick = () => area.innerHTML = "";
     document.getElementById("node-form").onsubmit = async (e) => {
         e.preventDefault();
@@ -161,10 +164,10 @@ function showNodeForm(node, cities, onSave) {
         try {
             if (isEdit) {
                 await API.updateNode(node.id, body);
-                showToast(t("msg_node_updated"));
+                showToast(`"${body.name}" ${t("msg_node_updated")}`);
             } else {
                 await API.createNode(body);
-                showToast(t("msg_node_created"));
+                showToast(`"${body.name}" ${t("msg_node_created")}`);
             }
             area.innerHTML = "";
             onSave();

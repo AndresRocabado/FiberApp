@@ -41,8 +41,8 @@
   "lbl_city": "City",
   "lbl_node_type": "Node Type",
   "lbl_op_status": "Operational Status",
-  "msg_node_created": "Node created successfully",
-  "msg_node_updated": "Node updated successfully",
+  "msg_node_created": "created successfully",
+  "msg_node_updated": "updated successfully",
   "msg_node_deleted": "Node deleted successfully",
   "confirm_delete_node": "Delete this node? This action is irreversible.",
 

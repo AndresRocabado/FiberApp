@@ -41,8 +41,8 @@
   "lbl_city": "Ciudad",
   "lbl_node_type": "Tipo de Nodo",
   "lbl_op_status": "Estado Operativo",
-  "msg_node_created": "Nodo creado correctamente",
-  "msg_node_updated": "Nodo actualizado correctamente",
+  "msg_node_created": "creado correctamente",
+  "msg_node_updated": "actualizado correctamente",
   "msg_node_deleted": "Nodo eliminado correctamente",
   "confirm_delete_node": "¿Eliminar este nodo? Esta acción es irreversible.",
 

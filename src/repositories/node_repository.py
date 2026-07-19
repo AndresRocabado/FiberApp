@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from database.connection import get_connection
-from src.models.node import Node, NodeType, OperationalStatus
+from src.models.node import Node
 from src.repositories.base_repository import BaseRepository
 
 
@@ -16,18 +16,22 @@ class NodeRepository(BaseRepository[Node]):
 
     def get_by_id(self, node_id: int) -> Optional[Node]:
         with get_connection() as conn:
-            row = conn.execute("SELECT * FROM nodes WHERE id = ?", (node_id,)).fetchone()
+            row = conn.execute(
+                "SELECT * FROM nodes WHERE id = ? AND deleted_at IS NULL", (node_id,)
+            ).fetchone()
         return Node.from_row(row) if row else None
 
     def get_all(self) -> List[Node]:
         with get_connection() as conn:
-            rows = conn.execute("SELECT * FROM nodes ORDER BY name").fetchall()
+            rows = conn.execute(
+                "SELECT * FROM nodes WHERE deleted_at IS NULL ORDER BY name"
+            ).fetchall()
         return [Node.from_row(r) for r in rows]
 
     def get_by_city(self, city: str) -> List[Node]:
         with get_connection() as conn:
             rows = conn.execute(
-                "SELECT * FROM nodes WHERE city = ? ORDER BY name", (city,)
+                "SELECT * FROM nodes WHERE city = ? AND deleted_at IS NULL ORDER BY name", (city,)
             ).fetchall()
         return [Node.from_row(r) for r in rows]
 
@@ -39,22 +43,25 @@ class NodeRepository(BaseRepository[Node]):
 
     def delete(self, node_id: int) -> bool:
         with get_connection() as conn:
-            cursor = conn.execute("DELETE FROM nodes WHERE id = ?", (node_id,))
+            cursor = conn.execute(
+                "UPDATE nodes SET deleted_at = datetime('now') WHERE id = ? AND deleted_at IS NULL",
+                (node_id,)
+            )
             return cursor.rowcount > 0
 
     def get_all_cities(self) -> list:
         with get_connection() as conn:
             rows = conn.execute(
-                "SELECT DISTINCT city FROM nodes ORDER BY city"
+                "SELECT DISTINCT city FROM nodes WHERE deleted_at IS NULL ORDER BY city"
             ).fetchall()
         return [r["city"] for r in rows]
 
     def exists_by_name(self, name: str, exclude_id: Optional[int] = None) -> bool:
         if exclude_id is not None:
-            sql = "SELECT 1 FROM nodes WHERE name = ? AND id != ?"
+            sql = "SELECT 1 FROM nodes WHERE name = ? AND id != ? AND deleted_at IS NULL"
             args = (name, exclude_id)
         else:
-            sql = "SELECT 1 FROM nodes WHERE name = ?"
+            sql = "SELECT 1 FROM nodes WHERE name = ? AND deleted_at IS NULL"
             args = (name,)
         with get_connection() as conn:
             return conn.execute(sql, args).fetchone() is not None

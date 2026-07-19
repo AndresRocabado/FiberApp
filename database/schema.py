@@ -41,3 +41,11 @@ def initialize_database(drop_existing: bool = False) -> None:
             conn.execute("ALTER TABLE fiber_links ADD COLUMN name TEXT")
         except Exception:
             pass
+        try:
+            conn.execute("ALTER TABLE nodes ADD COLUMN deleted_at TEXT")
+        except Exception:
+            pass
+        try:
+            conn.execute("ALTER TABLE fiber_links ADD COLUMN deleted_at TEXT")
+        except Exception:
+            pass

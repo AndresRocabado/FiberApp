@@ -18,20 +18,24 @@ class NetworkReport:
 class ReportService:
     def generate_report(self) -> NetworkReport:
         with get_connection() as conn:
-            total_nodes = conn.execute("SELECT COUNT(*) FROM nodes").fetchone()[0]
-            total_links = conn.execute("SELECT COUNT(*) FROM fiber_links").fetchone()[0]
+            total_nodes = conn.execute(
+                "SELECT COUNT(*) FROM nodes WHERE deleted_at IS NULL"
+            ).fetchone()[0]
+            total_links = conn.execute(
+                "SELECT COUNT(*) FROM fiber_links WHERE deleted_at IS NULL"
+            ).fetchone()[0]
             total_km    = conn.execute(
-                "SELECT COALESCE(SUM(distance_km), 0) FROM fiber_links"
+                "SELECT COALESCE(SUM(distance_km), 0) FROM fiber_links WHERE deleted_at IS NULL"
             ).fetchone()[0]
 
             city_rows = conn.execute(
-                "SELECT city, COUNT(*) AS cnt FROM nodes GROUP BY city ORDER BY cnt DESC"
+                "SELECT city, COUNT(*) AS cnt FROM nodes WHERE deleted_at IS NULL GROUP BY city ORDER BY cnt DESC"
             ).fetchall()
             nodes_by_city = {r["city"]: r["cnt"] for r in city_rows}
 
             def count_links(status: str) -> int:
                 return conn.execute(
-                    "SELECT COUNT(*) FROM fiber_links WHERE status = ?", (status,)
+                    "SELECT COUNT(*) FROM fiber_links WHERE status = ? AND deleted_at IS NULL", (status,)
                 ).fetchone()[0]
 
             active      = count_links("Activo")

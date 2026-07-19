@@ -11,6 +11,7 @@ _SELECT_WITH_NAMES = """
     FROM   fiber_links fl
     JOIN   nodes n1 ON fl.origin_node_id      = n1.id
     JOIN   nodes n2 ON fl.destination_node_id = n2.id
+    WHERE  fl.deleted_at IS NULL
 """
 
 
@@ -31,7 +32,7 @@ class LinkRepository(BaseRepository[FiberLink]):
         return link
 
     def get_by_id(self, link_id: int) -> Optional[FiberLink]:
-        sql = _SELECT_WITH_NAMES + " WHERE fl.id = ?"
+        sql = _SELECT_WITH_NAMES + " AND fl.id = ?"
         with get_connection() as conn:
             row = conn.execute(sql, (link_id,)).fetchone()
         return FiberLink.from_row(row) if row else None
@@ -43,13 +44,13 @@ class LinkRepository(BaseRepository[FiberLink]):
         return [FiberLink.from_row(r) for r in rows]
 
     def get_by_status(self, status: LinkStatus) -> List[FiberLink]:
-        sql = _SELECT_WITH_NAMES + " WHERE fl.status = ? ORDER BY fl.id"
+        sql = _SELECT_WITH_NAMES + " AND fl.status = ? ORDER BY fl.id"
         with get_connection() as conn:
             rows = conn.execute(sql, (status.value,)).fetchall()
         return [FiberLink.from_row(r) for r in rows]
 
     def get_by_node(self, node_id: int) -> List[FiberLink]:
-        sql = _SELECT_WITH_NAMES + " WHERE fl.origin_node_id = ? OR fl.destination_node_id = ?"
+        sql = _SELECT_WITH_NAMES + " AND (fl.origin_node_id = ? OR fl.destination_node_id = ?)"
         with get_connection() as conn:
             rows = conn.execute(sql, (node_id, node_id)).fetchall()
         return [FiberLink.from_row(r) for r in rows]
@@ -70,5 +71,8 @@ class LinkRepository(BaseRepository[FiberLink]):
 
     def delete(self, link_id: int) -> bool:
         with get_connection() as conn:
-            cursor = conn.execute("DELETE FROM fiber_links WHERE id = ?", (link_id,))
+            cursor = conn.execute(
+                "UPDATE fiber_links SET deleted_at = datetime('now') WHERE id = ? AND deleted_at IS NULL",
+                (link_id,)
+            )
             return cursor.rowcount > 0

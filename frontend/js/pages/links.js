@@ -2,6 +2,7 @@ async function renderLinks(container) {
     const { t } = I18n;
     let _links = [], _nodes = [];
     let _sortCol = null, _sortDir = 1;
+    let _filter = '';
 
     const COLS = [
         { key: "id",                    label: () => t("col_id") },
@@ -35,7 +36,11 @@ async function renderLinks(container) {
 
     function renderRows() {
         const tbody = document.getElementById("links-tbody");
-        const sorted = sortArray(_links, _sortCol, _sortDir);
+        const term = _filter.toLowerCase();
+        const visible = term
+            ? _links.filter(lnk => [lnk.name, lnk.origin_node_name, lnk.destination_node_name, lnk.status].some(v => v?.toLowerCase().includes(term)))
+            : _links;
+        const sorted = sortArray(visible, _sortCol, _sortDir);
         tbody.innerHTML = sorted.length === 0
             ? `<tr><td colspan="9" class="empty-msg">${t("links_empty")}</td></tr>`
             : sorted.map(lnk => `
@@ -92,6 +97,7 @@ async function renderLinks(container) {
             </div>
             <div id="link-form-area"></div>
             <div class="table-toolbar">
+                <input type="search" id="links-search" class="search-input" placeholder="${t('search_placeholder')}">
                 <a href="${API.exportLinksUrl()}" class="btn btn-outline" download>${t("btn_export_csv")}</a>
             </div>
             <div class="table-wrapper">
@@ -103,6 +109,10 @@ async function renderLinks(container) {
         `;
 
         document.getElementById("btn-new-link").onclick = () => showLinkForm(null, _nodes, reload);
+        document.getElementById("links-search").addEventListener("input", e => {
+            _filter = e.target.value;
+            renderRows();
+        });
         renderHeaders();
         renderRows();
     }

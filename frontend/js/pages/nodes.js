@@ -2,6 +2,7 @@ async function renderNodes(container) {
     const { t } = I18n;
     let _nodes = [], _cities = [];
     let _sortCol = null, _sortDir = 1;
+    let _filter = '';
 
     const COLS = [
         { key: "id",         label: () => t("col_id") },
@@ -33,7 +34,11 @@ async function renderNodes(container) {
 
     function renderRows() {
         const tbody = document.getElementById("nodes-tbody");
-        const sorted = sortArray(_nodes, _sortCol, _sortDir);
+        const term = _filter.toLowerCase();
+        const visible = term
+            ? _nodes.filter(n => [n.name, n.city, n.node_type, n.status].some(v => v?.toLowerCase().includes(term)))
+            : _nodes;
+        const sorted = sortArray(visible, _sortCol, _sortDir);
         tbody.innerHTML = sorted.length === 0
             ? `<tr><td colspan="7" class="empty-msg">${t("nodes_empty")}</td></tr>`
             : sorted.map(n => `
@@ -80,6 +85,7 @@ async function renderNodes(container) {
             </div>
             <div id="node-form-area"></div>
             <div class="table-toolbar">
+                <input type="search" id="nodes-search" class="search-input" placeholder="${t('search_placeholder')}">
                 <a href="${API.exportNodesUrl()}" class="btn btn-outline" download>${t("btn_export_csv")}</a>
             </div>
             <div class="table-wrapper">
@@ -91,6 +97,10 @@ async function renderNodes(container) {
         `;
 
         document.getElementById("btn-new-node").onclick = () => showNodeForm(null, _cities, reload);
+        document.getElementById("nodes-search").addEventListener("input", e => {
+            _filter = e.target.value;
+            renderRows();
+        });
         renderHeaders();
         renderRows();
     }

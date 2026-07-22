@@ -237,9 +237,25 @@ body {
 /* ─── Tables ────────────────────────────────────────────────────────────── */
 .table-toolbar {
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: .75rem;
+    gap: .75rem;
 }
+
+.search-input {
+    padding: .45rem .75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: .875rem;
+    background: var(--surface);
+    color: var(--text);
+    width: 220px;
+    outline: none;
+    transition: border-color .15s;
+}
+.search-input:focus { border-color: var(--primary); }
+.search-input::placeholder { color: var(--text-muted); }
 
 .table-wrapper {
     background: var(--surface);

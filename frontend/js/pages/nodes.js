@@ -165,6 +165,7 @@ function showNodeForm(node, cities, onSave) {
 
     const topOffset = (document.querySelector('.topbar')?.offsetHeight ?? 56) + 16;
     window.scrollTo({ top: area.getBoundingClientRect().top + window.pageYOffset - topOffset, behavior: 'smooth' });
+    area.querySelector('input')?.focus();
 
     document.getElementById("btn-cancel-node").onclick = () => area.innerHTML = "";
     document.getElementById("node-form").onsubmit = async (e) => {

@@ -257,6 +257,12 @@ body {
 .search-input:focus { border-color: var(--primary); }
 .search-input::placeholder { color: var(--text-muted); }
 
+.records-count {
+    font-size: .8rem;
+    color: var(--text-muted);
+    margin: -.25rem 0 .5rem;
+}
+
 .table-wrapper {
     background: var(--surface);
     border-radius: var(--radius);

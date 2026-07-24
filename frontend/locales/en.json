@@ -73,6 +73,10 @@
   "node_type_terminal":     "Terminal",
 
   "search_placeholder": "Search...",
+  "records_showing": "Showing",
+  "records_of": "of",
+  "records_nodes": "nodes",
+  "records_links": "links",
   "btn_export_nodes": "Export Nodes CSV",
   "btn_export_links": "Export Links CSV",
   "btn_export_report": "Export Report CSV"

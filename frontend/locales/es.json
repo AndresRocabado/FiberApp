@@ -73,6 +73,10 @@
   "node_type_terminal":     "Terminal",
 
   "search_placeholder": "Buscar...",
+  "records_showing": "Mostrando",
+  "records_of": "de",
+  "records_nodes": "nodos",
+  "records_links": "enlaces",
   "btn_export_nodes": "Exportar Nodos CSV",
   "btn_export_links": "Exportar Enlaces CSV",
   "btn_export_report": "Exportar Reporte CSV"

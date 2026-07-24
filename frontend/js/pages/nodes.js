@@ -39,6 +39,12 @@ async function renderNodes(container) {
             ? _nodes.filter(n => [n.name, n.city, n.node_type, n.status].some(v => v?.toLowerCase().includes(term)))
             : _nodes;
         const sorted = sortArray(visible, _sortCol, _sortDir);
+        const countEl = document.getElementById("nodes-count");
+        if (countEl) {
+            countEl.textContent = _filter
+                ? `${t('records_showing')} ${sorted.length} ${t('records_of')} ${_nodes.length} ${t('records_nodes')}`
+                : `${t('records_showing')} ${_nodes.length} ${t('records_nodes')}`;
+        }
         tbody.innerHTML = sorted.length === 0
             ? `<tr><td colspan="7" class="empty-msg">${t("nodes_empty")}</td></tr>`
             : sorted.map(n => `
@@ -88,6 +94,7 @@ async function renderNodes(container) {
                 <input type="search" id="nodes-search" class="search-input" placeholder="${t('search_placeholder')}">
                 <a href="${API.exportNodesUrl()}" class="btn btn-outline" download>${t("btn_export_csv")}</a>
             </div>
+            <p class="records-count" id="nodes-count"></p>
             <div class="table-wrapper">
                 <table class="data-table">
                     <thead id="nodes-thead"></thead>

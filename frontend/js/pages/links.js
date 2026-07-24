@@ -41,6 +41,12 @@ async function renderLinks(container) {
             ? _links.filter(lnk => [lnk.name, lnk.origin_node_name, lnk.destination_node_name, lnk.status].some(v => v?.toLowerCase().includes(term)))
             : _links;
         const sorted = sortArray(visible, _sortCol, _sortDir);
+        const countEl = document.getElementById("links-count");
+        if (countEl) {
+            countEl.textContent = _filter
+                ? `${t('records_showing')} ${sorted.length} ${t('records_of')} ${_links.length} ${t('records_links')}`
+                : `${t('records_showing')} ${_links.length} ${t('records_links')}`;
+        }
         tbody.innerHTML = sorted.length === 0
             ? `<tr><td colspan="9" class="empty-msg">${t("links_empty")}</td></tr>`
             : sorted.map(lnk => `
@@ -100,6 +106,7 @@ async function renderLinks(container) {
                 <input type="search" id="links-search" class="search-input" placeholder="${t('search_placeholder')}">
                 <a href="${API.exportLinksUrl()}" class="btn btn-outline" download>${t("btn_export_csv")}</a>
             </div>
+            <p class="records-count" id="links-count"></p>
             <div class="table-wrapper">
                 <table class="data-table">
                     <thead id="links-thead"></thead>

@@ -37,6 +37,7 @@
 
     <!-- Topbar -->
     <header class="topbar">
+        <button class="theme-toggle" id="theme-toggle" title="Toggle dark mode">🌙</button>
         <div class="lang-dropdown" id="lang-dropdown">
             <button class="lang-trigger" id="lang-trigger">
                 🌐 <span id="lang-current">ES</span> <span class="lang-arrow">▾</span>
@@ -166,8 +167,21 @@ document.addEventListener("click", closeLangMenu);
 document.getElementById("btn-es").addEventListener("click", () => setLang("es"));
 document.getElementById("btn-en").addEventListener("click", () => setLang("en"));
 
+// ─── Dark mode ────────────────────────────────────────────────────────────
+function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    document.getElementById("theme-toggle").textContent = theme === "dark" ? "☀️" : "🌙";
+}
+
+document.getElementById("theme-toggle").addEventListener("click", () => {
+    const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    localStorage.setItem("theme", next);
+    applyTheme(next);
+});
+
 // ─── Boot ─────────────────────────────────────────────────────────────────
 (async () => {
+    applyTheme(localStorage.getItem("theme") || "light");
     const savedLang = localStorage.getItem("lang") || "es";
     await I18n.load(savedLang);
     applyI18n();

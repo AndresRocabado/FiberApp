@@ -21,6 +21,15 @@
     --topbar-h:    56px;
 }
 
+[data-theme="dark"] {
+    --bg:         #111827;
+    --surface:    #1f2937;
+    --text:       #e2e8f0;
+    --text-muted: #94a3b8;
+    --border:     #374151;
+    --shadow:     0 2px 8px rgba(0,0,0,.35);
+}
+
 body {
     font-family: "Inter", "Segoe UI", sans-serif;
     background: var(--bg);
@@ -120,7 +129,22 @@ body {
     transition: border-color .15s, background .15s;
 }
 .lang-trigger:hover { border-color: var(--primary); background: #f0f5ff; }
+[data-theme="dark"] .lang-trigger:hover { background: #2d3748; }
 .lang-arrow { font-size: .7rem; color: var(--text-muted); }
+
+.theme-toggle {
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    color: var(--text);
+    transition: border-color .15s, background .15s;
+    line-height: 1;
+}
+.theme-toggle:hover { border-color: var(--primary); background: #f0f5ff; }
+[data-theme="dark"] .theme-toggle:hover { background: #2d3748; }
 
 .lang-menu {
     display: none;

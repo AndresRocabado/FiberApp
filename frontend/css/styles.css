@@ -200,8 +200,9 @@ body {
     top: var(--topbar-h);
     z-index: 80;
     background: var(--bg);
-    padding: .5rem 0;
+    padding: .5rem 0 .75rem;
     margin-top: -.5rem;
+    border-bottom: 2px solid var(--border);
 }
 .page-header .page-title { margin-bottom: 0; }
 

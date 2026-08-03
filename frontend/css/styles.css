@@ -396,7 +396,7 @@ body {
     border-radius: 8px;
     font-size: .9rem;
     color: var(--text);
-    background: #fff;
+    background: var(--surface);
     transition: border-color .15s;
     outline: none;
 }
@@ -454,4 +454,27 @@ body {
     .charts-grid { grid-template-columns: 1fr; }
     .sidebar { transform: translateX(-100%); }
     .main-wrap { margin-left: 0; }
+}
+
+/* ─── Dark mode overrides ───────────────────────────────────────────────── */
+[data-theme="dark"] .data-table th               { background: #1a2436; }
+[data-theme="dark"] .data-table tbody tr:hover   { background: #2d3748; }
+[data-theme="dark"] .data-table th.sortable:hover { background: #2d3748; }
+
+[data-theme="dark"] .badge-success { background: rgba(40,167,69,.2);  color: #6ee7a8; }
+[data-theme="dark"] .badge-danger  { background: rgba(220,53,69,.2);  color: #f87171; }
+[data-theme="dark"] .badge-warning { background: rgba(255,193,7,.2);  color: #fbbf24; }
+[data-theme="dark"] .badge-default { background: rgba(255,255,255,.1); color: var(--text-muted); }
+
+[data-theme="dark"] .form-group input,
+[data-theme="dark"] .form-group select { background: #111827; }
+
+[data-theme="dark"] .lang-option:hover { background: #2d3748; }
+
+[data-theme="dark"] .toast { background: #0f172a; }
+
+[data-theme="dark"] .alert-warning {
+    background: rgba(255,193,7,.12);
+    color: #fbbf24;
+    border-color: rgba(255,193,7,.35);
 }

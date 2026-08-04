@@ -57,7 +57,7 @@ async function renderNodes(container) {
                     <td>${n.created_at}</td>
                     <td class="row-actions">
                         <button class="btn btn-sm btn-outline btn-edit-node" data-id="${n.id}">✏️</button>
-                        <button class="btn btn-sm btn-danger btn-delete-node" data-id="${n.id}">🗑️</button>
+                        <button class="btn btn-sm btn-danger btn-delete-node" data-id="${n.id}" data-name="${n.name}">🗑️</button>
                     </td>
                 </tr>`).join("");
 
@@ -69,7 +69,7 @@ async function renderNodes(container) {
         });
         tbody.querySelectorAll(".btn-delete-node").forEach(btn => {
             btn.onclick = () => confirmDelete(
-                t("confirm_delete_node"),
+                t("confirm_delete_node").replace("{name}", btn.dataset.name),
                 async () => { await API.deleteNode(+btn.dataset.id); showToast(t("msg_node_deleted")); reload(); }
             );
         });
@@ -191,6 +191,14 @@ function showNodeForm(node, cities, onSave) {
             onSave();
         } catch (err) {
             document.getElementById("node-error").textContent = err.message;
+            if (err.message.includes("nombre") || err.message.includes("name")) {
+                const nameInput = document.querySelector('#node-form input[name="name"]');
+                if (nameInput) {
+                    nameInput.style.borderColor = 'var(--danger)';
+                    nameInput.focus();
+                    nameInput.addEventListener('input', () => { nameInput.style.borderColor = ''; }, { once: true });
+                }
+            }
         }
     };
 }

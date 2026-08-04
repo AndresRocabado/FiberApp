@@ -44,7 +44,7 @@
   "msg_node_created": "creado correctamente",
   "msg_node_updated": "actualizado correctamente",
   "msg_node_deleted": "Nodo eliminado correctamente",
-  "confirm_delete_node": "¿Eliminar este nodo? Esta acción es irreversible.",
+  "confirm_delete_node": "¿Eliminar el nodo \"{name}\"? Esta acción es irreversible.",
 
   "links_title": "Gestión de Enlaces",
   "links_empty": "No hay enlaces registrados.",
@@ -58,7 +58,7 @@
   "msg_link_created": "Enlace creado correctamente",
   "msg_link_updated": "Enlace actualizado correctamente",
   "msg_link_deleted": "Enlace eliminado correctamente",
-  "confirm_delete_link": "¿Eliminar este enlace? Esta acción es irreversible.",
+  "confirm_delete_link": "¿Eliminar el enlace \"{name}\"? Esta acción es irreversible.",
 
   "reports_title": "Reportes de Red",
   "reports_summary": "Resumen General",

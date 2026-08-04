@@ -44,7 +44,7 @@
   "msg_node_created": "created successfully",
   "msg_node_updated": "updated successfully",
   "msg_node_deleted": "Node deleted successfully",
-  "confirm_delete_node": "Delete this node? This action is irreversible.",
+  "confirm_delete_node": "Delete node \"{name}\"? This action is irreversible.",
 
   "links_title": "Link Management",
   "links_empty": "No links registered.",
@@ -58,7 +58,7 @@
   "msg_link_created": "Link created successfully",
   "msg_link_updated": "Link updated successfully",
   "msg_link_deleted": "Link deleted successfully",
-  "confirm_delete_link": "Delete this link? This action is irreversible.",
+  "confirm_delete_link": "Delete link \"{name}\"? This action is irreversible.",
 
   "reports_title": "Network Reports",
   "reports_summary": "General Summary",

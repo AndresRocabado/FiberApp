@@ -61,7 +61,7 @@ async function renderLinks(container) {
                     <td>${lnk.created_at}</td>
                     <td class="row-actions">
                         <button class="btn btn-sm btn-outline btn-edit-link" data-id="${lnk.id}">✏️</button>
-                        <button class="btn btn-sm btn-danger btn-delete-link" data-id="${lnk.id}">🗑️</button>
+                        <button class="btn btn-sm btn-danger btn-delete-link" data-id="${lnk.id}" data-name="${lnk.name ?? '#' + lnk.id}">🗑️</button>
                     </td>
                 </tr>`).join("");
 
@@ -73,7 +73,7 @@ async function renderLinks(container) {
         });
         tbody.querySelectorAll(".btn-delete-link").forEach(btn => {
             btn.onclick = () => confirmDelete(
-                t("confirm_delete_link"),
+                t("confirm_delete_link").replace("{name}", btn.dataset.name),
                 async () => { await API.deleteLink(+btn.dataset.id); showToast(t("msg_link_deleted")); reload(); }
             );
         });

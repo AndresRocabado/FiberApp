@@ -174,7 +174,11 @@ function showNodeForm(node, cities, onSave) {
     window.scrollTo({ top: area.getBoundingClientRect().top + window.pageYOffset - topOffset, behavior: 'smooth' });
     area.querySelector('input')?.focus();
 
-    document.getElementById("btn-cancel-node").onclick = () => area.innerHTML = "";
+    const closeForm = () => { area.innerHTML = ""; document.removeEventListener("keydown", onEscape); };
+    const onEscape  = (e) => { if (e.key === "Escape") closeForm(); };
+    document.addEventListener("keydown", onEscape);
+
+    document.getElementById("btn-cancel-node").onclick = closeForm;
     document.getElementById("node-form").onsubmit = async (e) => {
         e.preventDefault();
         const fd   = new FormData(e.target);
@@ -187,7 +191,7 @@ function showNodeForm(node, cities, onSave) {
                 await API.createNode(body);
                 showToast(`"${body.name}" ${t("msg_node_created")}`);
             }
-            area.innerHTML = "";
+            closeForm();
             onSave();
         } catch (err) {
             document.getElementById("node-error").textContent = err.message;

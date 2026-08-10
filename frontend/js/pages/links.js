@@ -189,7 +189,11 @@ function showLinkForm(link, nodes, onSave) {
     window.scrollTo({ top: area.getBoundingClientRect().top + window.pageYOffset - topOffset, behavior: 'smooth' });
     area.querySelector('input')?.focus();
 
-    document.getElementById("btn-cancel-link").onclick = () => area.innerHTML = "";
+    const closeForm = () => { area.innerHTML = ""; document.removeEventListener("keydown", onEscape); };
+    const onEscape  = (e) => { if (e.key === "Escape") closeForm(); };
+    document.addEventListener("keydown", onEscape);
+
+    document.getElementById("btn-cancel-link").onclick = closeForm;
     document.getElementById("link-form").onsubmit = async (e) => {
         e.preventDefault();
         const fd   = new FormData(e.target);
@@ -210,7 +214,7 @@ function showLinkForm(link, nodes, onSave) {
                 await API.createLink(body);
                 showToast(`${label}${t("msg_link_created")}`);
             }
-            area.innerHTML = "";
+            closeForm();
             onSave();
         } catch (err) {
             document.getElementById("link-error").textContent = err.message;

@@ -77,6 +77,8 @@
   "records_of": "de",
   "records_nodes": "nodos",
   "records_links": "enlaces",
+  "unsaved_changes": "Hay cambios sin guardar. ¿Querés descartarlos y salir?",
+  "btn_discard": "Descartar",
   "btn_export_nodes": "Exportar Nodos CSV",
   "btn_export_links": "Exportar Enlaces CSV",
   "btn_export_report": "Exportar Reporte CSV"

@@ -106,14 +106,24 @@ function sortArray(arr, col, dir) {
     });
 }
 
-function confirmDelete(message, onConfirm) {
+function confirmDialog(message, confirmText, onConfirm) {
     const overlay = document.getElementById("modal-overlay");
-    document.getElementById("modal-msg").textContent = message;
+    document.getElementById("modal-msg").textContent     = message;
     document.getElementById("modal-cancel").textContent  = I18n.t("btn_cancel");
-    document.getElementById("modal-confirm").textContent = I18n.t("btn_confirm_delete");
+    document.getElementById("modal-confirm").textContent = confirmText;
     overlay.style.display = "flex";
     document.getElementById("modal-cancel").onclick  = () => overlay.style.display = "none";
     document.getElementById("modal-confirm").onclick = () => { overlay.style.display = "none"; onConfirm(); };
+}
+
+function confirmDelete(message, onConfirm) {
+    confirmDialog(message, I18n.t("btn_confirm_delete"), onConfirm);
+}
+
+function hasOpenForm() {
+    const nodeArea = document.getElementById("node-form-area");
+    const linkArea = document.getElementById("link-form-area");
+    return (nodeArea?.innerHTML.trim() !== "") || (linkArea?.innerHTML.trim() !== "");
 }
 
 // ─── Router ───────────────────────────────────────────────────────────────
@@ -131,7 +141,14 @@ async function navigate(page) {
 }
 
 document.querySelectorAll(".nav-item").forEach(el => {
-    el.addEventListener("click", () => navigate(el.dataset.page));
+    el.addEventListener("click", () => {
+        const page = el.dataset.page;
+        if (hasOpenForm()) {
+            confirmDialog(I18n.t("unsaved_changes"), I18n.t("btn_discard"), () => navigate(page));
+        } else {
+            navigate(page);
+        }
+    });
 });
 
 // ─── i18n ─────────────────────────────────────────────────────────────────

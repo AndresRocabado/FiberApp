@@ -80,6 +80,14 @@
 
 <script>
 // ─── Helpers ──────────────────────────────────────────────────────────────
+function typeClass(nodeType) {
+    if (nodeType === "Central")      return "type-central";
+    if (nodeType === "Distribución") return "type-distribution";
+    if (nodeType === "Acceso")       return "type-access";
+    if (nodeType === "Terminal")     return "type-terminal";
+    return "default";
+}
+
 function statusClass(status) {
     if (status === "Activo"   || status === "Active")      return "success";
     if (status === "Inactivo" || status === "Inactive")    return "danger";

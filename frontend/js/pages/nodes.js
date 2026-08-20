@@ -52,7 +52,7 @@ async function renderNodes(container) {
                     <td>${n.id}</td>
                     <td>${n.name}</td>
                     <td>${n.city}</td>
-                    <td>${n.node_type}</td>
+                    <td><span class="badge badge-${typeClass(n.node_type)}">${n.node_type}</span></td>
                     <td><span class="badge badge-${statusClass(n.status)}">${n.status}</span></td>
                     <td>${n.created_at}</td>
                     <td class="row-actions">

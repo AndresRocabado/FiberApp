@@ -56,8 +56,8 @@ async function renderNodes(container) {
                     <td><span class="badge badge-${statusClass(n.status)}">${n.status}</span></td>
                     <td>${n.created_at}</td>
                     <td class="row-actions">
-                        <button class="btn btn-sm btn-outline btn-edit-node" data-id="${n.id}">✏️</button>
-                        <button class="btn btn-sm btn-danger btn-delete-node" data-id="${n.id}" data-name="${n.name}">🗑️</button>
+                        <button class="btn btn-sm btn-outline btn-edit-node" data-id="${n.id}" title="${t('btn_edit')}">✏️</button>
+                        <button class="btn btn-sm btn-danger btn-delete-node" data-id="${n.id}" data-name="${n.name}" title="${t('btn_delete')}">🗑️</button>
                     </td>
                 </tr>`).join("");
 

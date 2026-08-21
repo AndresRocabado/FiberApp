@@ -60,8 +60,8 @@ async function renderLinks(container) {
                     <td><span class="badge badge-${statusClass(lnk.status)}">${lnk.status}</span></td>
                     <td>${lnk.created_at}</td>
                     <td class="row-actions">
-                        <button class="btn btn-sm btn-outline btn-edit-link" data-id="${lnk.id}">✏️</button>
-                        <button class="btn btn-sm btn-danger btn-delete-link" data-id="${lnk.id}" data-name="${lnk.name ?? '#' + lnk.id}">🗑️</button>
+                        <button class="btn btn-sm btn-outline btn-edit-link" data-id="${lnk.id}" title="${t('btn_edit')}">✏️</button>
+                        <button class="btn btn-sm btn-danger btn-delete-link" data-id="${lnk.id}" data-name="${lnk.name ?? '#' + lnk.id}" title="${t('btn_delete')}">🗑️</button>
                     </td>
                 </tr>`).join("");
 

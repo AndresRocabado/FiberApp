@@ -182,6 +182,19 @@ function showNodeForm(node, cities, onSave) {
     document.getElementById("node-form").onsubmit = async (e) => {
         e.preventDefault();
         const fd   = new FormData(e.target);
+
+        let firstInvalid = null;
+        ["name", "city"].forEach(field => {
+            const input = e.target.querySelector(`[name="${field}"]`);
+            const empty = !fd.get(field)?.trim();
+            input.style.borderColor = empty ? "var(--danger)" : "";
+            if (empty) {
+                firstInvalid = firstInvalid ?? input;
+                input.addEventListener("input", () => { input.style.borderColor = ""; }, { once: true });
+            }
+        });
+        if (firstInvalid) { firstInvalid.focus(); return; }
+
         const body = Object.fromEntries(fd.entries());
         try {
             if (isEdit) {

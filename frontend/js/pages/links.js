@@ -196,7 +196,21 @@ function showLinkForm(link, nodes, onSave) {
     document.getElementById("btn-cancel-link").onclick = closeForm;
     document.getElementById("link-form").onsubmit = async (e) => {
         e.preventDefault();
-        const fd   = new FormData(e.target);
+        const fd = new FormData(e.target);
+
+        let firstInvalid = null;
+        ["distance_km", "capacity_gbps"].forEach(field => {
+            const input = e.target.querySelector(`[name="${field}"]`);
+            const val   = parseFloat(fd.get(field));
+            const bad   = isNaN(val) || val <= 0;
+            input.style.borderColor = bad ? "var(--danger)" : "";
+            if (bad) {
+                firstInvalid = firstInvalid ?? input;
+                input.addEventListener("input", () => { input.style.borderColor = ""; }, { once: true });
+            }
+        });
+        if (firstInvalid) { firstInvalid.focus(); return; }
+
         const body = {
             origin_node_id:      +fd.get("origin_node_id"),
             destination_node_id: +fd.get("destination_node_id"),

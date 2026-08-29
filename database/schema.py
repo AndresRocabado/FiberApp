@@ -49,3 +49,10 @@ def initialize_database(drop_existing: bool = False) -> None:
             conn.execute("ALTER TABLE fiber_links ADD COLUMN deleted_at TEXT")
         except Exception:
             pass
+
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_nodes_deleted_at ON nodes(deleted_at)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_nodes_city       ON nodes(city)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_nodes_status     ON nodes(status)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_nodes_node_type  ON nodes(node_type)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_links_deleted_at ON fiber_links(deleted_at)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_links_status     ON fiber_links(status)")

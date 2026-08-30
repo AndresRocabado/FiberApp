@@ -1,12 +1,14 @@
 from typing import List, Optional
 
 from src.models.node import Node, NodeType, OperationalStatus
+from src.repositories.link_repository import LinkRepository
 from src.repositories.node_repository import NodeRepository
 
 
 class NodeService:
-    def __init__(self, repository: Optional[NodeRepository] = None) -> None:
-        self._repo = repository or NodeRepository()
+    def __init__(self, repository: Optional[NodeRepository] = None, link_repository: Optional[LinkRepository] = None) -> None:
+        self._repo  = repository or NodeRepository()
+        self._links = link_repository or LinkRepository()
 
     @staticmethod
     def normalize_city(city: str) -> str:
@@ -58,6 +60,7 @@ class NodeService:
 
     def delete_node(self, node_id: int) -> bool:
         self.get_node(node_id)
+        self._links.delete_by_node(node_id)
         if not self._repo.delete(node_id):
             raise RuntimeError(f"No se pudo eliminar el nodo con ID {node_id}")
         return True

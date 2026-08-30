@@ -76,3 +76,12 @@ class LinkRepository(BaseRepository[FiberLink]):
                 (link_id,)
             )
             return cursor.rowcount > 0
+
+    def delete_by_node(self, node_id: int) -> int:
+        with get_connection() as conn:
+            cursor = conn.execute(
+                """UPDATE fiber_links SET deleted_at = datetime('now')
+                   WHERE (origin_node_id = ? OR destination_node_id = ?) AND deleted_at IS NULL""",
+                (node_id, node_id)
+            )
+            return cursor.rowcount

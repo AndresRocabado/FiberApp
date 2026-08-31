@@ -116,10 +116,10 @@ async function renderLinks(container) {
         `;
 
         document.getElementById("btn-new-link").onclick = () => showLinkForm(null, _nodes, reload);
-        document.getElementById("links-search").addEventListener("input", e => {
+        document.getElementById("links-search").addEventListener("input", debounce(e => {
             _filter = e.target.value;
             renderRows();
-        });
+        }, 250));
         renderHeaders();
         renderRows();
     }

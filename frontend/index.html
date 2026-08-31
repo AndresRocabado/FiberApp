@@ -103,6 +103,11 @@ function showToast(msg) {
     setTimeout(() => el.remove(), 3000);
 }
 
+function debounce(fn, delay) {
+    let timer;
+    return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), delay); };
+}
+
 function sortArray(arr, col, dir) {
     if (!col) return arr;
     return [...arr].sort((a, b) => {

@@ -104,10 +104,10 @@ async function renderNodes(container) {
         `;
 
         document.getElementById("btn-new-node").onclick = () => showNodeForm(null, _cities, reload);
-        document.getElementById("nodes-search").addEventListener("input", e => {
+        document.getElementById("nodes-search").addEventListener("input", debounce(e => {
             _filter = e.target.value;
             renderRows();
-        });
+        }, 250));
         renderHeaders();
         renderRows();
     }

@@ -73,6 +73,8 @@
   "node_type_terminal":     "Terminal",
 
   "search_placeholder": "Buscar...",
+  "btn_prev": "← Anterior",
+  "btn_next": "Siguiente →",
   "records_showing": "Mostrando",
   "records_of": "de",
   "records_nodes": "nodos",

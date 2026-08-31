@@ -411,6 +411,22 @@ body {
 .form-actions { display: flex; gap: .75rem; }
 .form-error { margin-top: .6rem; font-size: .85rem; color: var(--danger); min-height: 1.2em; }
 
+/* ─── Pagination ────────────────────────────────────────────────────────── */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: .65rem 0 .25rem;
+}
+.page-info {
+    font-size: .875rem;
+    color: var(--text-muted);
+    min-width: 55px;
+    text-align: center;
+}
+.btn:disabled { opacity: .4; cursor: not-allowed; pointer-events: none; }
+
 /* ─── Export buttons ────────────────────────────────────────────────────── */
 .export-buttons { display: flex; gap: .75rem; flex-wrap: wrap; }
 

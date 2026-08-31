@@ -2,7 +2,8 @@ async function renderLinks(container) {
     const { t } = I18n;
     let _links = [], _nodes = [];
     let _sortCol = null, _sortDir = 1;
-    let _filter = '';
+    let _filter = '', _page = 1;
+    const PAGE_SIZE = 20;
 
     const COLS = [
         { key: "id",                    label: () => t("col_id") },
@@ -40,16 +41,36 @@ async function renderLinks(container) {
         const visible = term
             ? _links.filter(lnk => [lnk.name, lnk.origin_node_name, lnk.destination_node_name, lnk.status].some(v => v?.toLowerCase().includes(term)))
             : _links;
-        const sorted = sortArray(visible, _sortCol, _sortDir);
+        const sorted     = sortArray(visible, _sortCol, _sortDir);
+        const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+        _page = Math.min(_page, totalPages);
+        const start    = (_page - 1) * PAGE_SIZE;
+        const pageData = sorted.slice(start, start + PAGE_SIZE);
+
         const countEl = document.getElementById("links-count");
         if (countEl) {
-            countEl.textContent = _filter
-                ? `${t('records_showing')} ${sorted.length} ${t('records_of')} ${_links.length} ${t('records_links')}`
-                : `${t('records_showing')} ${_links.length} ${t('records_links')}`;
+            if (totalPages > 1) {
+                countEl.textContent = `${t('records_showing')} ${sorted.length === 0 ? 0 : start + 1}–${Math.min(start + PAGE_SIZE, sorted.length)} ${t('records_of')} ${sorted.length} ${t('records_links')}`;
+            } else {
+                countEl.textContent = _filter
+                    ? `${t('records_showing')} ${sorted.length} ${t('records_of')} ${_links.length} ${t('records_links')}`
+                    : `${t('records_showing')} ${_links.length} ${t('records_links')}`;
+            }
         }
-        tbody.innerHTML = sorted.length === 0
+
+        const paginEl = document.getElementById("links-pagination");
+        if (paginEl) {
+            paginEl.innerHTML = totalPages <= 1 ? "" : `
+                <button class="btn btn-outline btn-sm" id="btn-prev-links" ${_page === 1 ? "disabled" : ""}>${t('btn_prev')}</button>
+                <span class="page-info">${_page} / ${totalPages}</span>
+                <button class="btn btn-outline btn-sm" id="btn-next-links" ${_page === totalPages ? "disabled" : ""}>${t('btn_next')}</button>`;
+            document.getElementById("btn-prev-links")?.addEventListener("click", () => { _page--; renderRows(); });
+            document.getElementById("btn-next-links")?.addEventListener("click", () => { _page++; renderRows(); });
+        }
+
+        tbody.innerHTML = pageData.length === 0
             ? `<tr><td colspan="9" class="empty-msg">${t("links_empty")}</td></tr>`
-            : sorted.map(lnk => `
+            : pageData.map(lnk => `
                 <tr>
                     <td>${lnk.id}</td>
                     <td>${lnk.name ?? ""}</td>
@@ -113,11 +134,13 @@ async function renderLinks(container) {
                     <tbody id="links-tbody"></tbody>
                 </table>
             </div>
+            <div id="links-pagination" class="pagination"></div>
         `;
 
         document.getElementById("btn-new-link").onclick = () => showLinkForm(null, _nodes, reload);
         document.getElementById("links-search").addEventListener("input", debounce(e => {
             _filter = e.target.value;
+            _page = 1;
             renderRows();
         }, 250));
         renderHeaders();

@@ -134,9 +134,8 @@ function confirmDelete(message, onConfirm) {
 }
 
 function hasOpenForm() {
-    const nodeArea = document.getElementById("node-form-area");
-    const linkArea = document.getElementById("link-form-area");
-    return (nodeArea?.innerHTML.trim() !== "") || (linkArea?.innerHTML.trim() !== "");
+    return !!(document.getElementById("node-form-area")?.innerHTML.trim()) ||
+           !!(document.getElementById("link-form-area")?.innerHTML.trim());
 }
 
 // ─── Router ───────────────────────────────────────────────────────────────

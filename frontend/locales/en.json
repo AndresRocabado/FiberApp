@@ -73,6 +73,8 @@
   "node_type_terminal":     "Terminal",
 
   "search_placeholder": "Search...",
+  "btn_prev": "← Previous",
+  "btn_next": "Next →",
   "records_showing": "Showing",
   "records_of": "of",
   "records_nodes": "nodes",

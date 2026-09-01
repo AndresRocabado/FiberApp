@@ -60,6 +60,8 @@
   "msg_link_deleted": "Enlace eliminado correctamente",
   "confirm_delete_link": "¿Eliminar el enlace \"{name}\"? Esta acción es irreversible.",
 
+  "isolated_nodes_title": "Nodos sin enlaces",
+  "isolated_nodes_desc": "Estos nodos no tienen ningún enlace activo. Pueden ser errores de carga.",
   "reports_title": "Reportes de Red",
   "reports_summary": "Resumen General",
   "metric_inactive_links": "Enlaces Inactivos",

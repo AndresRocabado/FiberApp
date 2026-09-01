@@ -489,6 +489,10 @@ body {
 @keyframes spin { to { transform: rotate(360deg); } }
 .alert { padding: 1rem 1.25rem; border-radius: var(--radius); margin-bottom: 1rem; }
 .alert-warning { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
+.isolated-alert { margin-bottom: 1.25rem; }
+.isolated-list { margin: .5rem 0 0 1.25rem; display: flex; flex-wrap: wrap; gap: .25rem .75rem; }
+.isolated-list li { font-size: .875rem; }
+.isolated-city { opacity: .7; font-size: .8rem; }
 
 @media (max-width: 768px) {
     .charts-grid { grid-template-columns: 1fr; }

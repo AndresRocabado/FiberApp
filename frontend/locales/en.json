@@ -60,6 +60,8 @@
   "msg_link_deleted": "Link deleted successfully",
   "confirm_delete_link": "Delete link \"{name}\"? This action is irreversible.",
 
+  "isolated_nodes_title": "Isolated nodes",
+  "isolated_nodes_desc": "These nodes have no active links. They may indicate data entry errors.",
   "reports_title": "Network Reports",
   "reports_summary": "General Summary",
   "metric_inactive_links": "Inactive Links",

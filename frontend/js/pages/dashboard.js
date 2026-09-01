@@ -2,7 +2,7 @@ async function renderDashboard(container) {
     const { t } = I18n;
     container.innerHTML = `<div class="loading">...</div>`;
 
-    const report = await API.getReport();
+    const [report, nodes, links] = await Promise.all([API.getReport(), API.getNodes(), API.getLinks()]);
 
     container.innerHTML = `
         <h1 class="page-title">Dashboard</h1>
@@ -25,6 +25,16 @@ async function renderDashboard(container) {
                 <span class="metric-value">${report.active_links}</span>
             </div>
         </div>
+
+        ${(() => {
+            const connected = new Set(links.flatMap(l => [l.origin_node_id, l.destination_node_id]));
+            const isolated  = nodes.filter(n => !connected.has(n.id));
+            if (!isolated.length) return "";
+            return `<div class="alert alert-warning isolated-alert">
+                <strong>⚠ ${t("isolated_nodes_title")}:</strong> ${t("isolated_nodes_desc")}
+                <ul class="isolated-list">${isolated.map(n => `<li>${n.name} <span class="isolated-city">(${n.city})</span></li>`).join("")}</ul>
+            </div>`;
+        })()}
 
         <div class="charts-grid">
             <div class="chart-card">

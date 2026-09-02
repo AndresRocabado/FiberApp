@@ -28,6 +28,12 @@ const API = (() => {
         updateLink:  (id, body)   => request("PUT",    `/links/${id}`, body),
         deleteLink:  (id)         => request("DELETE", `/links/${id}`),
 
+        // Trash
+        getDeletedNodes:  ()   => request("GET", "/nodes/deleted"),
+        restoreNode:      (id) => request("PUT", `/nodes/${id}/restore`),
+        getDeletedLinks:  ()   => request("GET", "/links/deleted"),
+        restoreLink:      (id) => request("PUT", `/links/${id}/restore`),
+
         // Reports
         getReport:   ()           => request("GET",    "/reports"),
 

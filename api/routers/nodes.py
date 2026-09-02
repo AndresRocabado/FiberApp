@@ -30,6 +30,20 @@ def export_nodes():
     )
 
 
+@router.get("/deleted", response_model=list[NodeOut])
+def list_deleted_nodes():
+    return [_to_out(n) for n in _svc.get_deleted_nodes()]
+
+
+@router.put("/{node_id}/restore", response_model=NodeOut)
+def restore_node(node_id: int):
+    try:
+        _svc.restore_node(node_id)
+        return _to_out(_svc.get_node(node_id))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
 @router.get("/{node_id}", response_model=NodeOut)
 def get_node(node_id: int):
     node = _svc.get_node(node_id)
@@ -72,4 +86,5 @@ def _to_out(node) -> dict:
         "node_type":  node.node_type.value,
         "status":     node.status.value,
         "created_at": node.created_at,
+        "deleted_at": getattr(node, "deleted_at", None),
     }

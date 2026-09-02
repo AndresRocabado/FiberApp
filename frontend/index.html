@@ -28,6 +28,10 @@
             <span class="nav-icon">📋</span>
             <span data-i18n="nav_reports">Reportes</span>
         </div>
+        <div class="nav-item" data-page="trash">
+            <span class="nav-icon">🗑️</span>
+            <span data-i18n="nav_trash">Papelera</span>
+        </div>
     </nav>
     <div class="sidebar-footer">Fiber Network Management v2.0</div>
 </aside>
@@ -77,6 +81,7 @@
 <script src="/js/pages/nodes.js"></script>
 <script src="/js/pages/links.js"></script>
 <script src="/js/pages/reports.js"></script>
+<script src="/js/pages/trash.js"></script>
 
 <script>
 // ─── Helpers ──────────────────────────────────────────────────────────────
@@ -139,7 +144,7 @@ function hasOpenForm() {
 }
 
 // ─── Router ───────────────────────────────────────────────────────────────
-const PAGES = { dashboard: renderDashboard, nodes: renderNodes, links: renderLinks, reports: renderReports };
+const PAGES = { dashboard: renderDashboard, nodes: renderNodes, links: renderLinks, reports: renderReports, trash: renderTrash };
 let currentPage = "dashboard";
 
 async function navigate(page) {

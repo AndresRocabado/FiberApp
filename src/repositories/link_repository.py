@@ -77,6 +77,38 @@ class LinkRepository(BaseRepository[FiberLink]):
             )
             return cursor.rowcount > 0
 
+    def get_deleted(self) -> list:
+        sql = """
+            SELECT fl.*,
+                   n1.name AS origin_node_name,
+                   n2.name AS destination_node_name
+            FROM   fiber_links fl
+            LEFT JOIN nodes n1 ON fl.origin_node_id      = n1.id
+            LEFT JOIN nodes n2 ON fl.destination_node_id = n2.id
+            WHERE  fl.deleted_at IS NOT NULL
+            ORDER BY fl.deleted_at DESC
+        """
+        with get_connection() as conn:
+            rows = conn.execute(sql).fetchall()
+        return [FiberLink.from_row(r) for r in rows]
+
+    def restore(self, link_id: int) -> bool:
+        with get_connection() as conn:
+            cursor = conn.execute(
+                "UPDATE fiber_links SET deleted_at = NULL WHERE id = ? AND deleted_at IS NOT NULL",
+                (link_id,)
+            )
+            return cursor.rowcount > 0
+
+    def restore_by_node(self, node_id: int) -> int:
+        with get_connection() as conn:
+            cursor = conn.execute(
+                """UPDATE fiber_links SET deleted_at = NULL
+                   WHERE (origin_node_id = ? OR destination_node_id = ?) AND deleted_at IS NOT NULL""",
+                (node_id, node_id)
+            )
+            return cursor.rowcount
+
     def delete_by_node(self, node_id: int) -> int:
         with get_connection() as conn:
             cursor = conn.execute(

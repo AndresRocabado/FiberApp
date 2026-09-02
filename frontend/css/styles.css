@@ -326,6 +326,7 @@ body {
 .data-table tbody tr:hover { background: #f8fafc; }
 
 .empty-msg { text-align: center; color: var(--text-muted); padding: 2rem !important; }
+.text-muted { color: var(--text-muted); font-size: .8rem; }
 .row-actions { display: flex; gap: .4rem; justify-content: flex-end; }
 
 .data-table th.sortable { cursor: pointer; user-select: none; white-space: nowrap; }

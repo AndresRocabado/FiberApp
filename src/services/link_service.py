@@ -83,6 +83,15 @@ class LinkService:
         link.name                = name.strip() if name and name.strip() else None
         return self._links.update(link)
 
+    def get_deleted_links(self) -> list:
+        return self._links.get_deleted()
+
+    def restore_link(self, link_id: int) -> bool:
+        deleted = self._links.get_deleted()
+        if not any(l.id == link_id for l in deleted):
+            raise ValueError(f"Enlace con ID {link_id} no encontrado en la papelera")
+        return self._links.restore(link_id)
+
     def delete_link(self, link_id: int) -> bool:
         self.get_link(link_id)
         if not self._links.delete(link_id):

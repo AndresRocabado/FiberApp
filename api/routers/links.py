@@ -25,6 +25,20 @@ def export_links():
     )
 
 
+@router.get("/deleted", response_model=list[LinkOut])
+def list_deleted_links():
+    return [_to_out(lnk) for lnk in _svc.get_deleted_links()]
+
+
+@router.put("/{link_id}/restore", response_model=LinkOut)
+def restore_link(link_id: int):
+    try:
+        _svc.restore_link(link_id)
+        return _to_out(_svc.get_link(link_id))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
 @router.get("/{link_id}", response_model=LinkOut)
 def get_link(link_id: int):
     lnk = _svc.get_link(link_id)
@@ -78,4 +92,5 @@ def _to_out(lnk) -> dict:
         "capacity_gbps":         lnk.capacity_gbps,
         "status":                lnk.status.value,
         "created_at":            lnk.created_at,
+        "deleted_at":            getattr(lnk, "deleted_at", None),
     }

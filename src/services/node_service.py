@@ -58,6 +58,18 @@ class NodeService:
         node.status    = OperationalStatus(status)
         return self._repo.update(node)
 
+    def get_deleted_nodes(self) -> list:
+        return self._repo.get_deleted()
+
+    def restore_node(self, node_id: int) -> bool:
+        node = next((n for n in self._repo.get_deleted() if n.id == node_id), None)
+        if not node:
+            raise ValueError(f"Nodo con ID {node_id} no encontrado en la papelera")
+        if self._repo.exists_by_name(node.name):
+            raise ValueError(f"Ya existe un nodo activo con el nombre '{node.name}'")
+        self._links.restore_by_node(node_id)
+        return self._repo.restore(node_id)
+
     def delete_node(self, node_id: int) -> bool:
         self.get_node(node_id)
         self._links.delete_by_node(node_id)

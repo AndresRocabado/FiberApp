@@ -56,6 +56,21 @@ class NodeRepository(BaseRepository[Node]):
             ).fetchall()
         return [r["city"] for r in rows]
 
+    def get_deleted(self) -> list:
+        with get_connection() as conn:
+            rows = conn.execute(
+                "SELECT * FROM nodes WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC"
+            ).fetchall()
+        return [Node.from_row(r) for r in rows]
+
+    def restore(self, node_id: int) -> bool:
+        with get_connection() as conn:
+            cursor = conn.execute(
+                "UPDATE nodes SET deleted_at = NULL WHERE id = ? AND deleted_at IS NOT NULL",
+                (node_id,)
+            )
+            return cursor.rowcount > 0
+
     def exists_by_name(self, name: str, exclude_id: Optional[int] = None) -> bool:
         if exclude_id is not None:
             sql = "SELECT 1 FROM nodes WHERE name = ? AND id != ? AND deleted_at IS NULL"

@@ -23,6 +23,7 @@ class NodeOut(BaseModel):
     node_type:  str
     status:     str
     created_at: Optional[str] = None
+    deleted_at: Optional[str] = None
 
 
 class LinkCreate(BaseModel):
@@ -54,6 +55,7 @@ class LinkOut(BaseModel):
     capacity_gbps:        float
     status:               str
     created_at:           Optional[str] = None
+    deleted_at:           Optional[str] = None
 
 
 class ReportOut(BaseModel):

@@ -2,10 +2,16 @@ async function renderTrash(container) {
     const { t } = I18n;
     container.innerHTML = `<div class="loading">...</div>`;
 
-    const [deletedNodes, deletedLinks] = await Promise.all([
-        API.getDeletedNodes(),
-        API.getDeletedLinks(),
-    ]);
+    let deletedNodes = [], deletedLinks = [];
+    try {
+        [deletedNodes, deletedLinks] = await Promise.all([
+            API.getDeletedNodes(),
+            API.getDeletedLinks(),
+        ]);
+    } catch (err) {
+        container.innerHTML = `<p class="empty-msg">${err.message}</p>`;
+        return;
+    }
 
     container.innerHTML = `
         <h1 class="page-title">${t("trash_title")}</h1>

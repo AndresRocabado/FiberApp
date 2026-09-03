@@ -19,6 +19,7 @@ class FiberLink:
     name:                  Optional[str] = None
     id:                    Optional[int] = None
     created_at:            Optional[str] = None
+    deleted_at:            Optional[str] = None
     origin_node_name:      Optional[str] = None
     destination_node_name: Optional[str] = None
 
@@ -32,8 +33,9 @@ class FiberLink:
             distance_km=row["distance_km"],
             capacity_gbps=row["capacity_gbps"],
             status=LinkStatus(row["status"]),
-            name=row["name"] if "name" in row.keys() else None,
+            name=row["name"] if "name" in keys else None,
             created_at=row["created_at"],
+            deleted_at=row["deleted_at"] if "deleted_at" in keys else None,
             origin_node_name=row["origin_node_name"] if "origin_node_name" in keys else None,
             destination_node_name=row["destination_node_name"] if "destination_node_name" in keys else None,
         )

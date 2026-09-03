@@ -24,6 +24,7 @@ class Node:
     status:    OperationalStatus
     id:         Optional[int] = None
     created_at: Optional[str] = None
+    deleted_at: Optional[str] = None
 
     @classmethod
     def from_row(cls, row) -> "Node":
@@ -34,4 +35,5 @@ class Node:
             node_type=NodeType(row["node_type"]),
             status=OperationalStatus(row["status"]),
             created_at=row["created_at"],
+            deleted_at=row["deleted_at"] if "deleted_at" in row.keys() else None,
         )

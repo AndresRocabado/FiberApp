@@ -94,5 +94,11 @@
   "btn_discard": "Descartar",
   "btn_export_nodes": "Exportar Nodos CSV",
   "btn_export_links": "Exportar Enlaces CSV",
-  "btn_export_report": "Exportar Reporte CSV"
+  "btn_export_report": "Exportar Reporte CSV",
+
+  "login_title": "Iniciar sesión",
+  "login_username": "Usuario",
+  "login_password": "Contraseña",
+  "login_submit": "Entrar",
+  "btn_logout": "Cerrar sesión"
 }

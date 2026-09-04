@@ -4,8 +4,19 @@ const API = (() => {
             method,
             headers: { "Content-Type": "application/json" },
         };
+        const token = localStorage.getItem("token");
+        if (token) opts.headers["Authorization"] = `Bearer ${token}`;
         if (body !== null) opts.body = JSON.stringify(body);
+
         const res = await fetch(`/api${path}`, opts);
+
+        if (res.status === 401) {
+            localStorage.removeItem("token");
+            document.getElementById("login-overlay").hidden = false;
+            document.getElementById("page-content").innerHTML = "";
+            throw new Error("Sesión expirada. Iniciá sesión nuevamente.");
+        }
+
         if (res.status === 204) return null;
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail ?? "Error");
@@ -13,6 +24,17 @@ const API = (() => {
     }
 
     return {
+        // Auth
+        login: (body) => fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+        }).then(async res => {
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail ?? "Error");
+            return data;
+        }),
+
         // Nodes
         getNodes:    ()           => request("GET",    "/nodes"),
         getCities:   ()           => request("GET",    "/nodes/cities"),

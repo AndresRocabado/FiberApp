@@ -94,5 +94,11 @@
   "btn_discard": "Discard",
   "btn_export_nodes": "Export Nodes CSV",
   "btn_export_links": "Export Links CSV",
-  "btn_export_report": "Export Report CSV"
+  "btn_export_report": "Export Report CSV",
+
+  "login_title": "Sign In",
+  "login_username": "Username",
+  "login_password": "Password",
+  "login_submit": "Sign In",
+  "btn_logout": "Sign Out"
 }

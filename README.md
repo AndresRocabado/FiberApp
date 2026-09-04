@@ -1,103 +1,139 @@
-# Fiber Network Data Management System
+# Fiber Network Management System
 
-Sistema de gestion de red de fibra optica desarrollado en Python con interfaz Streamlit.
+A web application for managing fiber optic network infrastructure — nodes, links, cities, and operational status. Built with a FastAPI backend and a vanilla HTML/CSS/JS single-page frontend.
 
-## Tecnologias
+## Features
 
-- **Backend:** Python 3.10+
-- **Base de datos:** SQLite (por defecto) / PostgreSQL (opcional)
-- **UI:** Streamlit
-- **Tests:** pytest
+- **Node management** — create, edit, soft-delete, and restore nodes with type and status badges
+- **Link management** — manage connections between nodes with distance and capacity tracking
+- **Dashboard** — live metrics, charts (nodes by city, link status), and isolated-node warnings
+- **Reports** — network summary with CSV export
+- **Trash / restore** — soft-deleted records are recoverable from a dedicated trash page
+- **Search & filter** — real-time client-side filtering with debounce on all tables
+- **Pagination** — 20 records per page with Previous / Next controls
+- **Dark mode** — toggle with persistence via `localStorage`
+- **Bilingual UI** — Spanish and English, switchable at runtime
+- **Authentication** — JWT-based login; all API routes are protected
 
-## Estructura del Proyecto
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Backend | Python 3.10+, FastAPI, Uvicorn |
+| Database | SQLite |
+| Frontend | Vanilla HTML, CSS, JavaScript (no framework) |
+| Auth | PyJWT, python-dotenv |
+| Tests | pytest |
+
+## Project Structure
 
 ```
 fiber-network-system/
-├── app.py                    # Punto de entrada Streamlit
-├── requirements.txt
-├── .gitignore
-├── README.md
-├── database/
-│   ├── connection.py         # Contexto de conexion SQLite/PostgreSQL
-│   ├── schema.py             # Creacion de tablas
-│   └── migrations/
-│       └── 001_initial.sql   # Schema SQL de referencia
+├── api/
+│   ├── main.py               # FastAPI app entry point
+│   ├── auth.py               # JWT login endpoint + auth dependency
+│   ├── schemas.py            # Pydantic request/response models
+│   └── routers/
+│       ├── nodes.py
+│       ├── links.py
+│       └── reports.py
 ├── src/
-│   ├── models/
-│   │   ├── node.py           # Modelo Node (dataclass + enums)
-│   │   └── link.py           # Modelo FiberLink (dataclass + enums)
-│   ├── repositories/
-│   │   ├── base_repository.py   # Interfaz abstracta CRUD
-│   │   ├── node_repository.py   # Acceso a datos de nodos
-│   │   └── link_repository.py   # Acceso a datos de enlaces
-│   ├── services/
-│   │   ├── node_service.py      # Logica de negocio - nodos
-│   │   ├── link_service.py      # Logica de negocio - enlaces
-│   │   └── report_service.py    # Generacion de reportes
+│   ├── models/               # Dataclasses + enums (Node, FiberLink)
+│   ├── repositories/         # SQLite data access layer
+│   ├── services/             # Business logic
 │   └── utils/
-│       └── csv_exporter.py      # Exportacion a CSV
+│       └── csv_exporter.py
+├── database/
+│   ├── connection.py         # SQLite connection context manager
+│   └── schema.py             # Table creation + migrations
+├── frontend/
+│   ├── index.html            # SPA shell
+│   ├── css/styles.css
+│   ├── js/
+│   │   ├── api.js            # Fetch wrapper (auth header + 401 handling)
+│   │   ├── i18n.js           # Locale loader
+│   │   └── pages/            # dashboard, nodes, links, reports, trash
+│   └── locales/
+│       ├── es.json
+│       └── en.json
 ├── tests/
-│   ├── test_node_service.py
-│   └── test_link_service.py
-└── docs/
-    └── architecture.md
+├── .env                      # Credentials (not committed)
+├── .env.example
+└── requirements.txt
 ```
 
-## Instalacion
+## Getting Started
+
+### 1. Clone and create a virtual environment
 
 ```bash
-# 1. Crear y activar entorno virtual
+git clone <repo-url>
+cd fiber-network-system
+
 python -m venv venv
 venv\Scripts\activate        # Windows
-source venv/bin/activate     # Linux/Mac
-
-# 2. Instalar dependencias
-pip install -r requirements.txt
-
-# 3. Ejecutar la aplicacion
-streamlit run app.py
+source venv/bin/activate     # Linux / Mac
 ```
 
-## Ejecutar Tests
+### 2. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Configure credentials
+
+Copy `.env.example` to `.env` and edit it:
+
+```bash
+cp .env.example .env
+```
+
+```env
+APP_USERNAME=admin
+APP_PASSWORD=your_password
+JWT_SECRET=a-long-random-secret-string
+JWT_EXPIRE_HOURS=8
+```
+
+### 4. Run the server
+
+```bash
+uvicorn api.main:app --reload
+```
+
+Open [http://localhost:8000](http://localhost:8000) in your browser.
+
+## Authentication
+
+All API routes under `/api/` require a valid JWT token. The login page is shown automatically when no token is present or when the session expires. Credentials are configured in `.env` — no database of users is needed.
+
+## Running Tests
 
 ```bash
 pytest tests/ -v
 ```
 
-## Variables de Entorno
+## Environment Variables
 
-| Variable   | Descripcion                          | Valor por defecto     |
-|------------|--------------------------------------|-----------------------|
-| `DB_PATH`  | Ruta del archivo SQLite              | `fiber_network.db`    |
-| `DATABASE_URL` | URL PostgreSQL (si se usa PG)    | *(no definida)*       |
+| Variable | Description | Default |
+|---|---|---|
+| `APP_USERNAME` | Login username | `admin` |
+| `APP_PASSWORD` | Login password | `admin123` |
+| `JWT_SECRET` | Secret key used to sign tokens | `change-me` |
+| `JWT_EXPIRE_HOURS` | Session duration in hours | `8` |
+| `DB_PATH` | SQLite database file path | `fiber_network.db` |
 
-## Funcionalidades
-
-### Gestion de Nodos
-- Crear, editar, eliminar y consultar nodos
-- Campos: ID, Nombre, Ciudad, Tipo (Central/Distribucion/Acceso/Terminal), Estado
-
-### Gestion de Enlaces
-- Crear, editar, eliminar y consultar enlaces entre nodos
-- Campos: ID, Nodo Origen, Nodo Destino, Distancia (km), Capacidad (Gbps), Estado
-
-### Reportes
-- Total de nodos y enlaces
-- Longitud total de fibra desplegada
-- Nodos agrupados por ciudad
-- Estado de enlaces (activos / inactivos / mantenimiento)
-- Exportacion a CSV
-
-## Arquitectura
-
-El proyecto sigue el patron de capas:
+## Architecture
 
 ```
-UI (Streamlit app.py)
-    |
-Services (logica de negocio)
-    |
-Repositories (acceso a datos)
-    |
-Database (SQLite / PostgreSQL)
+Browser (SPA)
+    │  HTTP + JWT
+FastAPI (api/)
+    │
+Services (src/services/)     ← business logic, validation
+    │
+Repositories (src/repositories/)  ← SQL queries
+    │
+SQLite (database/)
 ```

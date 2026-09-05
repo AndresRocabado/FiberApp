@@ -580,6 +580,13 @@ body {
 
 .btn-block { width: 100%; margin-top: .25rem; }
 
+/* Logged-in user in topbar */
+.topbar-user {
+    font-size: .8rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
 /* Logout button in topbar */
 .btn-logout {
     font-size: .8rem;

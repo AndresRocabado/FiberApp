@@ -42,6 +42,7 @@
     <!-- Topbar -->
     <header class="topbar">
         <button class="theme-toggle" id="theme-toggle" title="Toggle dark mode">🌙</button>
+        <span class="topbar-user" id="topbar-user"></span>
         <button class="btn btn-sm btn-outline btn-logout" id="btn-logout" data-i18n="btn_logout">Salir</button>
         <div class="lang-dropdown" id="lang-dropdown">
             <button class="lang-trigger" id="lang-trigger">
@@ -234,6 +235,16 @@ document.getElementById("theme-toggle").addEventListener("click", () => {
     applyTheme(next);
 });
 
+// ─── User display ─────────────────────────────────────────────────────────
+function updateUserDisplay() {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        document.getElementById("topbar-user").textContent = payload.sub;
+    } catch (_) {}
+}
+
 // ─── Login ────────────────────────────────────────────────────────────────
 function showLogin() {
     document.getElementById("login-overlay").hidden = false;
@@ -255,6 +266,7 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
             password: document.getElementById("login-password").value,
         });
         localStorage.setItem("token", data.token);
+        updateUserDisplay();
         document.getElementById("login-overlay").hidden = true;
         await navigate("dashboard");
     } catch (err) {
@@ -282,6 +294,7 @@ document.getElementById("btn-logout").addEventListener("click", () => {
         showLogin();
         return;
     }
+    updateUserDisplay();
     await navigate("dashboard");
 })();
 </script>

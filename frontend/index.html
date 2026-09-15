@@ -281,8 +281,15 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
 });
 
 document.getElementById("btn-logout").addEventListener("click", () => {
-    localStorage.removeItem("token");
-    showLogin();
+    const doLogout = () => {
+        localStorage.removeItem("token");
+        showLogin();
+    };
+    if (hasOpenForm()) {
+        confirmDialog(I18n.t("unsaved_changes"), I18n.t("btn_discard"), doLogout);
+    } else {
+        doLogout();
+    }
 });
 
 // ─── Boot ─────────────────────────────────────────────────────────────────

@@ -171,6 +171,7 @@ let currentPage = "dashboard";
 
 async function navigate(page) {
     currentPage = page;
+    localStorage.setItem("lastPage", page);
     document.querySelectorAll(".nav-item").forEach(el => {
         el.classList.toggle("active", el.dataset.page === page);
     });
@@ -303,7 +304,8 @@ document.getElementById("btn-logout").addEventListener("click", () => {
         return;
     }
     updateUserDisplay();
-    await navigate("dashboard");
+    const saved = localStorage.getItem("lastPage");
+    await navigate(PAGES[saved] ? saved : "dashboard");
 })();
 </script>
 

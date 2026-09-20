@@ -67,7 +67,7 @@ async function renderNodes(container) {
         }
 
         tbody.innerHTML = pageData.length === 0
-            ? `<tr><td colspan="7" class="empty-msg">${t("nodes_empty")}</td></tr>`
+            ? `<tr><td colspan="7" class="empty-msg">${_filter ? t("no_results") : t("nodes_empty")}</td></tr>`
             : pageData.map(n => `
                 <tr>
                     <td>${n.id}</td>

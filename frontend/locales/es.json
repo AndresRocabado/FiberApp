@@ -96,6 +96,8 @@
   "btn_export_links": "Exportar Enlaces CSV",
   "btn_export_report": "Exportar Reporte CSV",
 
+  "no_results": "No se encontraron resultados para la búsqueda.",
+
   "login_title": "Iniciar sesión",
   "login_username": "Usuario",
   "login_password": "Contraseña",

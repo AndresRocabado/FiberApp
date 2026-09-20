@@ -69,7 +69,7 @@ async function renderLinks(container) {
         }
 
         tbody.innerHTML = pageData.length === 0
-            ? `<tr><td colspan="9" class="empty-msg">${t("links_empty")}</td></tr>`
+            ? `<tr><td colspan="9" class="empty-msg">${_filter ? t("no_results") : t("links_empty")}</td></tr>`
             : pageData.map(lnk => `
                 <tr>
                     <td>${lnk.id}</td>

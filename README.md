@@ -83,7 +83,7 @@ pip install -r requirements.txt
 
 ### 3. Configure credentials
 
-Copy `.env.example` to `.env` and edit it:
+Copy `.env.example` to `.env` and edit it (the server refuses to start if `APP_USERNAME`, `APP_PASSWORD` or `JWT_SECRET` are missing or still set to the example values):
 
 ```bash
 cp .env.example .env
@@ -118,9 +118,9 @@ pytest tests/ -v
 
 | Variable | Description | Default |
 |---|---|---|
-| `APP_USERNAME` | Login username | `admin` |
-| `APP_PASSWORD` | Login password | `admin123` |
-| `JWT_SECRET` | Secret key used to sign tokens | `change-me` |
+| `APP_USERNAME` | Login username | **required** |
+| `APP_PASSWORD` | Login password | **required** |
+| `JWT_SECRET` | Secret key used to sign tokens | **required** |
 | `JWT_EXPIRE_HOURS` | Session duration in hours | `8` |
 | `DB_PATH` | SQLite database file path | `fiber_network.db` |
 

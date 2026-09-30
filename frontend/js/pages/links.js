@@ -73,16 +73,16 @@ async function renderLinks(container) {
             : pageData.map(lnk => `
                 <tr>
                     <td>${lnk.id}</td>
-                    <td>${lnk.name ?? ""}</td>
-                    <td>${lnk.origin_node_name ?? lnk.origin_node_id}</td>
-                    <td>${lnk.destination_node_name ?? lnk.destination_node_id}</td>
+                    <td>${esc(lnk.name)}</td>
+                    <td>${esc(lnk.origin_node_name ?? lnk.origin_node_id)}</td>
+                    <td>${esc(lnk.destination_node_name ?? lnk.destination_node_id)}</td>
                     <td>${lnk.distance_km.toFixed(2)}</td>
                     <td>${lnk.capacity_gbps.toFixed(1)}</td>
-                    <td><span class="badge badge-${statusClass(lnk.status)}">${lnk.status}</span></td>
-                    <td>${lnk.created_at}</td>
+                    <td><span class="badge badge-${statusClass(lnk.status)}">${esc(lnk.status)}</span></td>
+                    <td>${esc(lnk.created_at)}</td>
                     <td class="row-actions">
                         <button class="btn btn-sm btn-outline btn-edit-link" data-id="${lnk.id}" title="${t('btn_edit')}">✏️</button>
-                        <button class="btn btn-sm btn-danger btn-delete-link" data-id="${lnk.id}" data-name="${lnk.name ?? '#' + lnk.id}" title="${t('btn_delete')}">🗑️</button>
+                        <button class="btn btn-sm btn-danger btn-delete-link" data-id="${lnk.id}" data-name="${esc(lnk.name ?? '#' + lnk.id)}" title="${t('btn_delete')}">🗑️</button>
                     </td>
                 </tr>`).join("");
 
@@ -161,7 +161,7 @@ function showLinkForm(link, nodes, onSave) {
     ];
 
     const nodeOptions = (selectedId) =>
-        nodes.map(n => `<option value="${n.id}" ${n.id === selectedId ? "selected" : ""}>${n.id} - ${n.name} (${n.city})</option>`).join("");
+        nodes.map(n => `<option value="${n.id}" ${n.id === selectedId ? "selected" : ""}>${n.id} - ${esc(n.name)} (${esc(n.city)})</option>`).join("");
 
     area.innerHTML = `
         <div class="form-card">
@@ -170,7 +170,7 @@ function showLinkForm(link, nodes, onSave) {
                 <div class="form-grid">
                     <div class="form-group">
                         <label>${t("lbl_link_name")}</label>
-                        <input name="name" value="${isEdit ? (link.name ?? "") : ""}">
+                        <input name="name" value="${isEdit ? esc(link.name) : ""}">
                     </div>
                     <div class="form-group">
 <label>${t("lbl_link_status")}</label>

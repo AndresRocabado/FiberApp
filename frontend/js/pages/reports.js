@@ -51,7 +51,7 @@ async function renderReports(container) {
                         .sort((a, b) => b[1] - a[1])
                         .map(([city, count]) => `
                             <tr>
-                                <td>${city}</td>
+                                <td>${esc(city)}</td>
                                 <td>${count}</td>
                             </tr>`).join("")
                     }

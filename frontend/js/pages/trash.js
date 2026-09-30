@@ -9,7 +9,7 @@ async function renderTrash(container) {
             API.getDeletedLinks(),
         ]);
     } catch (err) {
-        container.innerHTML = `<p class="empty-msg">${err.message}</p>`;
+        container.innerHTML = `<p class="empty-msg">${esc(err.message)}</p>`;
         return;
     }
 
@@ -71,11 +71,11 @@ function renderDeletedNodes(nodes, t) {
                 ${nodes.map(n => `
                     <tr>
                         <td>${n.id}</td>
-                        <td>${n.name}</td>
-                        <td>${n.city}</td>
-                        <td><span class="badge badge-${typeClass(n.node_type)}">${n.node_type}</span></td>
-                        <td><span class="badge badge-${statusClass(n.status)}">${n.status}</span></td>
-                        <td class="text-muted">${n.deleted_at ?? ""}</td>
+                        <td>${esc(n.name)}</td>
+                        <td>${esc(n.city)}</td>
+                        <td><span class="badge badge-${typeClass(n.node_type)}">${esc(n.node_type)}</span></td>
+                        <td><span class="badge badge-${statusClass(n.status)}">${esc(n.status)}</span></td>
+                        <td class="text-muted">${esc(n.deleted_at)}</td>
                         <td class="row-actions">
                             <button class="btn btn-sm btn-primary btn-restore-node" data-id="${n.id}">${t("btn_restore")}</button>
                         </td>
@@ -101,11 +101,11 @@ function renderDeletedLinks(links, t) {
                 ${links.map(lnk => `
                     <tr>
                         <td>${lnk.id}</td>
-                        <td>${lnk.name ?? ""}</td>
-                        <td>${lnk.origin_node_name ?? lnk.origin_node_id}</td>
-                        <td>${lnk.destination_node_name ?? lnk.destination_node_id}</td>
-                        <td><span class="badge badge-${statusClass(lnk.status)}">${lnk.status}</span></td>
-                        <td class="text-muted">${lnk.deleted_at ?? ""}</td>
+                        <td>${esc(lnk.name)}</td>
+                        <td>${esc(lnk.origin_node_name ?? lnk.origin_node_id)}</td>
+                        <td>${esc(lnk.destination_node_name ?? lnk.destination_node_id)}</td>
+                        <td><span class="badge badge-${statusClass(lnk.status)}">${esc(lnk.status)}</span></td>
+                        <td class="text-muted">${esc(lnk.deleted_at)}</td>
                         <td class="row-actions">
                             <button class="btn btn-sm btn-primary btn-restore-link" data-id="${lnk.id}">${t("btn_restore")}</button>
                         </td>

@@ -97,16 +97,26 @@
 <!-- Chart.js from CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
-<script src="/js/i18n.js?v=3"></script>
-<script src="/js/api.js?v=3"></script>
-<script src="/js/pages/dashboard.js?v=3"></script>
-<script src="/js/pages/nodes.js?v=3"></script>
-<script src="/js/pages/links.js?v=3"></script>
-<script src="/js/pages/reports.js?v=3"></script>
-<script src="/js/pages/trash.js?v=3"></script>
+<script src="/js/i18n.js?v=4"></script>
+<script src="/js/api.js?v=4"></script>
+<script src="/js/pages/dashboard.js?v=4"></script>
+<script src="/js/pages/nodes.js?v=4"></script>
+<script src="/js/pages/links.js?v=4"></script>
+<script src="/js/pages/reports.js?v=4"></script>
+<script src="/js/pages/trash.js?v=4"></script>
 
 <script>
 // ─── Helpers ──────────────────────────────────────────────────────────────
+// Escapes user/API data before interpolating it into innerHTML (text and attributes)
+function esc(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
 function typeClass(nodeType) {
     if (nodeType === "Central")      return "type-central";
     if (nodeType === "Distribución") return "type-distribution";

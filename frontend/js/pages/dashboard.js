@@ -32,7 +32,7 @@ async function renderDashboard(container) {
             if (!isolated.length) return "";
             return `<div class="alert alert-warning isolated-alert">
                 <strong>⚠ ${t("isolated_nodes_title")}:</strong> ${t("isolated_nodes_desc")}
-                <ul class="isolated-list">${isolated.map(n => `<li>${n.name} <span class="isolated-city">(${n.city})</span></li>`).join("")}</ul>
+                <ul class="isolated-list">${isolated.map(n => `<li>${esc(n.name)} <span class="isolated-city">(${esc(n.city)})</span></li>`).join("")}</ul>
             </div>`;
         })()}
 

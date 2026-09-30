@@ -71,14 +71,14 @@ async function renderNodes(container) {
             : pageData.map(n => `
                 <tr>
                     <td>${n.id}</td>
-                    <td>${n.name}</td>
-                    <td>${n.city}</td>
-                    <td><span class="badge badge-${typeClass(n.node_type)}">${n.node_type}</span></td>
-                    <td><span class="badge badge-${statusClass(n.status)}">${n.status}</span></td>
-                    <td>${n.created_at}</td>
+                    <td>${esc(n.name)}</td>
+                    <td>${esc(n.city)}</td>
+                    <td><span class="badge badge-${typeClass(n.node_type)}">${esc(n.node_type)}</span></td>
+                    <td><span class="badge badge-${statusClass(n.status)}">${esc(n.status)}</span></td>
+                    <td>${esc(n.created_at)}</td>
                     <td class="row-actions">
                         <button class="btn btn-sm btn-outline btn-edit-node" data-id="${n.id}" title="${t('btn_edit')}">✏️</button>
-                        <button class="btn btn-sm btn-danger btn-delete-node" data-id="${n.id}" data-name="${n.name}" title="${t('btn_delete')}">🗑️</button>
+                        <button class="btn btn-sm btn-danger btn-delete-node" data-id="${n.id}" data-name="${esc(n.name)}" title="${t('btn_delete')}">🗑️</button>
                     </td>
                 </tr>`).join("");
 
@@ -162,13 +162,13 @@ function showNodeForm(node, cities, onSave) {
                 <div class="form-grid">
                     <div class="form-group">
                         <label>${t("lbl_name")}</label>
-                        <input name="name" required value="${isEdit ? node.name : ""}">
+                        <input name="name" required value="${isEdit ? esc(node.name) : ""}">
                     </div>
                     <div class="form-group">
                         <label>${t("lbl_city")}</label>
-                        <input name="city" list="city-list" autocomplete="off" required value="${isEdit ? node.city : ""}">
+                        <input name="city" list="city-list" autocomplete="off" required value="${isEdit ? esc(node.city) : ""}">
                         <datalist id="city-list">
-                            ${cities.map(c => `<option value="${c}">`).join("")}
+                            ${cities.map(c => `<option value="${esc(c)}">`).join("")}
                         </datalist>
                     </div>
                     <div class="form-group">

@@ -6,7 +6,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import pytest
 
+from database.connection import get_connection
 from database.schema import initialize_database
+from src.services.link_service import LinkService
 from src.services.node_service import NodeService
 
 
@@ -102,3 +104,90 @@ class TestDeleteNode:
     def test_raises_for_nonexistent_node(self, service):
         with pytest.raises(ValueError, match="no encontrado"):
             service.delete_node(9999)
+
+
+class TestNameReuseAfterDelete:
+    def test_can_create_node_with_name_of_deleted_node(self, service):
+        old = service.create_node("Reusado", "Bogota", "Central", "Activo")
+        service.delete_node(old.id)
+        new = service.create_node("Reusado", "Cali", "Acceso", "Activo")
+        assert new.id != old.id
+
+    def test_can_rename_to_name_of_deleted_node(self, service):
+        old  = service.create_node("Viejo", "Bogota", "Central", "Activo")
+        node = service.create_node("Otro", "Cali", "Acceso", "Activo")
+        service.delete_node(old.id)
+        updated = service.update_node(node.id, "Viejo", "Cali", "Acceso", "Activo")
+        assert updated.name == "Viejo"
+
+    def test_restore_fails_when_name_is_taken(self, service):
+        old = service.create_node("Ocupado", "Bogota", "Central", "Activo")
+        service.delete_node(old.id)
+        service.create_node("Ocupado", "Cali", "Acceso", "Activo")
+        with pytest.raises(ValueError, match="Ya existe un nodo activo"):
+            service.restore_node(old.id)
+
+
+class TestLegacySchemaMigration:
+    def _create_legacy_schema(self):
+        with get_connection() as conn:
+            conn.execute("DROP TABLE IF EXISTS fiber_links")
+            conn.execute("DROP TABLE IF EXISTS nodes")
+            conn.execute("""
+                CREATE TABLE nodes (
+                    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name       TEXT    NOT NULL UNIQUE,
+                    city       TEXT    NOT NULL,
+                    node_type  TEXT    NOT NULL,
+                    status     TEXT    NOT NULL DEFAULT 'Activo',
+                    created_at TEXT    NOT NULL DEFAULT (datetime('now')),
+                    deleted_at TEXT
+                )
+            """)
+            conn.execute("""
+                CREATE TABLE fiber_links (
+                    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+                    origin_node_id      INTEGER NOT NULL,
+                    destination_node_id INTEGER NOT NULL,
+                    distance_km         REAL    NOT NULL,
+                    capacity_gbps       REAL    NOT NULL,
+                    status              TEXT    NOT NULL DEFAULT 'Activo',
+                    name                TEXT,
+                    created_at          TEXT    NOT NULL DEFAULT (datetime('now')),
+                    deleted_at          TEXT,
+                    FOREIGN KEY (origin_node_id)      REFERENCES nodes(id) ON DELETE RESTRICT,
+                    FOREIGN KEY (destination_node_id) REFERENCES nodes(id) ON DELETE RESTRICT
+                )
+            """)
+            conn.execute("INSERT INTO nodes (id, name, city, node_type) VALUES (1, 'A', 'Bogota', 'Central')")
+            conn.execute("INSERT INTO nodes (id, name, city, node_type, deleted_at) "
+                         "VALUES (2, 'B', 'Cali', 'Acceso', datetime('now'))")
+            conn.execute("INSERT INTO nodes (id, name, city, node_type) VALUES (3, 'C', 'Cali', 'Acceso')")
+            conn.execute("INSERT INTO fiber_links (origin_node_id, destination_node_id, distance_km, capacity_gbps) "
+                         "VALUES (1, 3, 5.0, 10.0)")
+
+    def test_migration_keeps_data_and_allows_reusing_deleted_names(self, service):
+        self._create_legacy_schema()
+        initialize_database()
+
+        assert [n.name for n in service.get_all_nodes()] == ["A", "C"]
+        assert [n.id for n in service.get_deleted_nodes()] == [2]
+        assert len(LinkService().get_all_links()) == 1
+
+        reused = service.create_node("B", "Cali", "Acceso", "Activo")
+        assert reused.id == 4
+
+    def test_migration_keeps_foreign_keys_enforced(self):
+        self._create_legacy_schema()
+        initialize_database()
+        with get_connection() as conn:
+            assert conn.execute("PRAGMA foreign_key_check").fetchall() == []
+            with pytest.raises(Exception, match="FOREIGN KEY"):
+                conn.execute("DELETE FROM nodes WHERE id = 1")
+
+    def test_active_names_stay_unique_at_db_level(self):
+        initialize_database()
+        with get_connection() as conn:
+            conn.execute("INSERT INTO nodes (name, city, node_type) VALUES ('X', 'Bogota', 'Central')")
+            with pytest.raises(Exception, match="UNIQUE"):
+                conn.execute("INSERT INTO nodes (name, city, node_type) VALUES ('X', 'Cali', 'Acceso')")

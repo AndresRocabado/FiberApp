@@ -55,7 +55,7 @@ ensuring no connection is left open.
 nodes
 -----
 id          INTEGER PK
-name        TEXT UNIQUE NOT NULL
+name        TEXT NOT NULL  -- unique among active nodes (deleted_at IS NULL)
 city        TEXT NOT NULL
 node_type   TEXT NOT NULL  -- Central | Distribucion | Acceso | Terminal
 status      TEXT NOT NULL  -- Activo | Inactivo | Mantenimiento

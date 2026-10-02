@@ -177,6 +177,20 @@ class TestLegacySchemaMigration:
         reused = service.create_node("B", "Cali", "Acceso", "Activo")
         assert reused.id == 4
 
+    def test_migration_marks_old_cascade_deleted_links(self, service):
+        self._create_legacy_schema()
+        with get_connection() as conn:
+            # Link 2: trashed with node B (same timestamp). Link 3: trashed by hand earlier.
+            conn.execute("INSERT INTO fiber_links (origin_node_id, destination_node_id, distance_km, capacity_gbps, deleted_at) "
+                         "SELECT 1, 2, 1.0, 1.0, deleted_at FROM nodes WHERE id = 2")
+            conn.execute("INSERT INTO fiber_links (origin_node_id, destination_node_id, distance_km, capacity_gbps, deleted_at) "
+                         "VALUES (2, 3, 1.0, 1.0, '2020-01-01 00:00:00')")
+        initialize_database()
+
+        service.restore_node(2)
+        active = sorted(l.id for l in LinkService().get_all_links())
+        assert active == [1, 2]
+
     def test_migration_keeps_foreign_keys_enforced(self):
         self._create_legacy_schema()
         initialize_database()

@@ -67,8 +67,9 @@ class NodeService:
             raise ValueError(f"Nodo con ID {node_id} no encontrado en la papelera")
         if self._repo.exists_by_name(node.name):
             raise ValueError(f"Ya existe un nodo activo con el nombre '{node.name}'")
-        self._links.restore_by_node(node_id)
-        return self._repo.restore(node_id)
+        restored = self._repo.restore(node_id)
+        self._links.restore_by_node(node_id)  # after the node, so both ends can be checked as active
+        return restored
 
     def delete_node(self, node_id: int) -> bool:
         self.get_node(node_id)

@@ -115,3 +115,71 @@ class TestDeleteLink:
     def test_raises_for_nonexistent_link(self, link_service):
         with pytest.raises(ValueError, match="no encontrado"):
             link_service.delete_link(9999)
+
+
+class TestRestoreWithNodes:
+    @pytest.fixture
+    def three_nodes(self, node_service):
+        a = node_service.create_node("A", "Bogota", "Central", "Activo")
+        b = node_service.create_node("B", "Cali",   "Acceso",  "Activo")
+        c = node_service.create_node("C", "Cali",   "Acceso",  "Activo")
+        return a, b, c
+
+    @staticmethod
+    def _active_ids(link_service):
+        return sorted(l.id for l in link_service.get_all_links())
+
+    def test_restoring_node_brings_back_its_links(self, node_service, link_service, three_nodes):
+        a, b, _ = three_nodes
+        ab = link_service.create_link(a.id, b.id, 1.0, 1.0, "Activo")
+        node_service.delete_node(a.id)
+        node_service.restore_node(a.id)
+        assert self._active_ids(link_service) == [ab.id]
+
+    def test_restoring_node_skips_links_deleted_by_hand(self, node_service, link_service, three_nodes):
+        a, b, c = three_nodes
+        ab = link_service.create_link(a.id, b.id, 1.0, 1.0, "Activo")
+        ac = link_service.create_link(a.id, c.id, 1.0, 1.0, "Activo")
+        link_service.delete_link(ac.id)
+        node_service.delete_node(a.id)
+        node_service.restore_node(a.id)
+        assert self._active_ids(link_service) == [ab.id]
+        assert [l.id for l in link_service.get_deleted_links()] == [ac.id]
+
+    def test_restoring_node_skips_links_to_nodes_still_in_trash(self, node_service, link_service, three_nodes):
+        a, b, _ = three_nodes
+        link_service.create_link(a.id, b.id, 1.0, 1.0, "Activo")
+        node_service.delete_node(a.id)
+        node_service.delete_node(b.id)
+        node_service.restore_node(a.id)
+        assert self._active_ids(link_service) == []
+
+    @pytest.mark.parametrize("first, second", [("a", "b"), ("b", "a")])
+    def test_link_comes_back_when_both_nodes_are_restored(self, node_service, link_service, three_nodes, first, second):
+        a, b, _ = three_nodes
+        nodes = {"a": a, "b": b}
+        ab = link_service.create_link(a.id, b.id, 1.0, 1.0, "Activo")
+        node_service.delete_node(a.id)
+        node_service.delete_node(b.id)
+        node_service.restore_node(nodes[first].id)
+        node_service.restore_node(nodes[second].id)
+        assert self._active_ids(link_service) == [ab.id]
+
+    def test_cannot_restore_link_while_a_node_is_in_trash(self, node_service, link_service, three_nodes):
+        a, b, _ = three_nodes
+        ab = link_service.create_link(a.id, b.id, 1.0, 1.0, "Activo")
+        node_service.delete_node(a.id)
+        with pytest.raises(ValueError, match="está en la papelera"):
+            link_service.restore_link(ab.id)
+
+    def test_manually_restored_link_is_not_cascade_deleted_again_on_node_restore(
+        self, node_service, link_service, three_nodes
+    ):
+        a, b, _ = three_nodes
+        ab = link_service.create_link(a.id, b.id, 1.0, 1.0, "Activo")
+        node_service.delete_node(a.id)
+        node_service.restore_node(a.id)
+        link_service.delete_link(ab.id)
+        node_service.delete_node(a.id)
+        node_service.restore_node(a.id)
+        assert self._active_ids(link_service) == []

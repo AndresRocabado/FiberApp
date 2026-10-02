@@ -53,6 +53,21 @@ PRAGMA foreign_keys = ON;
 """
 
 
+# Links trashed before deleted_by_node_id existed: treat them as cascade-deleted when
+# their deleted_at matches (within a second) the deleted_at of one of their nodes.
+_BACKFILL_DELETED_BY_NODE = """
+UPDATE fiber_links
+SET deleted_by_node_id = (
+    SELECT n.id FROM nodes n
+    WHERE  n.id IN (fiber_links.origin_node_id, fiber_links.destination_node_id)
+      AND  n.deleted_at IS NOT NULL
+      AND  ABS(strftime('%s', n.deleted_at) - strftime('%s', fiber_links.deleted_at)) <= 1
+    LIMIT 1
+)
+WHERE deleted_at IS NOT NULL
+"""
+
+
 def _nodes_has_unique_name(conn) -> bool:
     row = conn.execute(
         "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'nodes'"
@@ -77,6 +92,13 @@ def initialize_database(drop_existing: bool = False) -> None:
             pass
         try:
             conn.execute("ALTER TABLE fiber_links ADD COLUMN deleted_at TEXT")
+        except Exception:
+            pass
+        try:
+            # Set when a link is trashed together with one of its nodes, so restoring
+            # the node brings back only those links and not ones deleted by hand.
+            conn.execute("ALTER TABLE fiber_links ADD COLUMN deleted_by_node_id INTEGER")
+            conn.execute(_BACKFILL_DELETED_BY_NODE)
         except Exception:
             pass
 

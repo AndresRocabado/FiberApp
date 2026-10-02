@@ -95,16 +95,22 @@ class LinkRepository(BaseRepository[FiberLink]):
     def restore(self, link_id: int) -> bool:
         with get_connection() as conn:
             cursor = conn.execute(
-                "UPDATE fiber_links SET deleted_at = NULL WHERE id = ? AND deleted_at IS NOT NULL",
+                """UPDATE fiber_links SET deleted_at = NULL, deleted_by_node_id = NULL
+                   WHERE id = ? AND deleted_at IS NOT NULL""",
                 (link_id,)
             )
             return cursor.rowcount > 0
 
     def restore_by_node(self, node_id: int) -> int:
+        """Restores links trashed along with a node (not by hand) once both ends are active."""
         with get_connection() as conn:
             cursor = conn.execute(
-                """UPDATE fiber_links SET deleted_at = NULL
-                   WHERE (origin_node_id = ? OR destination_node_id = ?) AND deleted_at IS NOT NULL""",
+                """UPDATE fiber_links SET deleted_at = NULL, deleted_by_node_id = NULL
+                   WHERE (origin_node_id = ? OR destination_node_id = ?)
+                     AND deleted_at IS NOT NULL
+                     AND deleted_by_node_id IS NOT NULL
+                     AND origin_node_id      IN (SELECT id FROM nodes WHERE deleted_at IS NULL)
+                     AND destination_node_id IN (SELECT id FROM nodes WHERE deleted_at IS NULL)""",
                 (node_id, node_id)
             )
             return cursor.rowcount
@@ -112,8 +118,8 @@ class LinkRepository(BaseRepository[FiberLink]):
     def delete_by_node(self, node_id: int) -> int:
         with get_connection() as conn:
             cursor = conn.execute(
-                """UPDATE fiber_links SET deleted_at = datetime('now')
+                """UPDATE fiber_links SET deleted_at = datetime('now'), deleted_by_node_id = ?
                    WHERE (origin_node_id = ? OR destination_node_id = ?) AND deleted_at IS NULL""",
-                (node_id, node_id)
+                (node_id, node_id, node_id)
             )
             return cursor.rowcount

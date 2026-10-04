@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import PlainTextResponse
 
 from api.schemas import NodeCreate, NodeOut, NodeUpdate
+from src.services.exceptions import NotFoundError
 from src.services.node_service import NodeService
 from src.utils.csv_exporter import export_nodes_to_csv
 
@@ -40,16 +41,18 @@ def restore_node(node_id: int):
     try:
         _svc.restore_node(node_id)
         return _to_out(_svc.get_node(node_id))
+    except NotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 
 
 @router.get("/{node_id}", response_model=NodeOut)
 def get_node(node_id: int):
-    node = _svc.get_node(node_id)
-    if not node:
-        raise HTTPException(status_code=404, detail="Node not found")
-    return _to_out(node)
+    try:
+        return _to_out(_svc.get_node(node_id))
+    except NotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
 
 
 @router.post("", response_model=NodeOut, status_code=201)
@@ -66,6 +69,8 @@ def update_node(node_id: int, body: NodeUpdate):
     try:
         node = _svc.update_node(node_id, body.name, body.city, body.node_type, body.status)
         return _to_out(node)
+    except NotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 
@@ -74,6 +79,8 @@ def update_node(node_id: int, body: NodeUpdate):
 def delete_node(node_id: int):
     try:
         _svc.delete_node(node_id)
+    except NotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 

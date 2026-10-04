@@ -3,6 +3,7 @@ from typing import List, Optional
 from src.models.link import FiberLink, LinkStatus
 from src.repositories.link_repository import LinkRepository
 from src.repositories.node_repository import NodeRepository
+from src.services.exceptions import NotFoundError
 
 
 class LinkService:
@@ -53,7 +54,7 @@ class LinkService:
     def get_link(self, link_id: int) -> FiberLink:
         link = self._links.get_by_id(link_id)
         if link is None:
-            raise ValueError(f"Enlace con ID {link_id} no encontrado")
+            raise NotFoundError(f"Enlace con ID {link_id} no encontrado")
         return link
 
     def get_all_links(self) -> List[FiberLink]:
@@ -89,7 +90,7 @@ class LinkService:
     def restore_link(self, link_id: int) -> bool:
         link = next((l for l in self._links.get_deleted() if l.id == link_id), None)
         if not link:
-            raise ValueError(f"Enlace con ID {link_id} no encontrado en la papelera")
+            raise NotFoundError(f"Enlace con ID {link_id} no encontrado en la papelera")
         for node_id in (link.origin_node_id, link.destination_node_id):
             if self._nodes.get_by_id(node_id) is None:
                 raise ValueError(

@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import PlainTextResponse
 
 from api.schemas import LinkCreate, LinkOut, LinkUpdate
+from src.services.exceptions import NotFoundError
 from src.services.link_service import LinkService
 from src.utils.csv_exporter import export_links_to_csv
 
@@ -35,16 +36,18 @@ def restore_link(link_id: int):
     try:
         _svc.restore_link(link_id)
         return _to_out(_svc.get_link(link_id))
+    except NotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 
 
 @router.get("/{link_id}", response_model=LinkOut)
 def get_link(link_id: int):
-    lnk = _svc.get_link(link_id)
-    if not lnk:
-        raise HTTPException(status_code=404, detail="Link not found")
-    return _to_out(lnk)
+    try:
+        return _to_out(_svc.get_link(link_id))
+    except NotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
 
 
 @router.post("", response_model=LinkOut, status_code=201)
@@ -68,6 +71,8 @@ def update_link(link_id: int, body: LinkUpdate):
             body.distance_km, body.capacity_gbps, body.status, body.name,
         )
         return _to_out(lnk)
+    except NotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 
@@ -76,6 +81,8 @@ def update_link(link_id: int, body: LinkUpdate):
 def delete_link(link_id: int):
     try:
         _svc.delete_link(link_id)
+    except NotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 

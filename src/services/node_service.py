@@ -3,6 +3,7 @@ from typing import List, Optional
 from src.models.node import Node, NodeType, OperationalStatus
 from src.repositories.link_repository import LinkRepository
 from src.repositories.node_repository import NodeRepository
+from src.services.exceptions import NotFoundError
 
 
 class NodeService:
@@ -35,7 +36,7 @@ class NodeService:
     def get_node(self, node_id: int) -> Node:
         node = self._repo.get_by_id(node_id)
         if node is None:
-            raise ValueError(f"Nodo con ID {node_id} no encontrado")
+            raise NotFoundError(f"Nodo con ID {node_id} no encontrado")
         return node
 
     def get_all_nodes(self) -> List[Node]:
@@ -64,7 +65,7 @@ class NodeService:
     def restore_node(self, node_id: int) -> bool:
         node = next((n for n in self._repo.get_deleted() if n.id == node_id), None)
         if not node:
-            raise ValueError(f"Nodo con ID {node_id} no encontrado en la papelera")
+            raise NotFoundError(f"Nodo con ID {node_id} no encontrado en la papelera")
         if self._repo.exists_by_name(node.name):
             raise ValueError(f"Ya existe un nodo activo con el nombre '{node.name}'")
         restored = self._repo.restore(node_id)

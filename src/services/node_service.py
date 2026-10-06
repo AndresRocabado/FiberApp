@@ -1,5 +1,7 @@
 from typing import List, Optional
 
+from database.connection import transaction
+
 from src.models.node import Node, NodeType, OperationalStatus
 from src.repositories.link_repository import LinkRepository
 from src.repositories.node_repository import NodeRepository
@@ -66,15 +68,17 @@ class NodeService:
         node = next((n for n in self._repo.get_deleted() if n.id == node_id), None)
         if not node:
             raise NotFoundError(f"Nodo con ID {node_id} no encontrado en la papelera")
-        if self._repo.exists_by_name(node.name):
-            raise ValueError(f"Ya existe un nodo activo con el nombre '{node.name}'")
-        restored = self._repo.restore(node_id)
-        self._links.restore_by_node(node_id)  # after the node, so both ends can be checked as active
+        with transaction():
+            if self._repo.exists_by_name(node.name):
+                raise ValueError(f"Ya existe un nodo activo con el nombre '{node.name}'")
+            restored = self._repo.restore(node_id)
+            self._links.restore_by_node(node_id)  # after the node, so both ends can be checked as active
         return restored
 
     def delete_node(self, node_id: int) -> bool:
         self.get_node(node_id)
-        self._links.delete_by_node(node_id)
-        if not self._repo.delete(node_id):
-            raise RuntimeError(f"No se pudo eliminar el nodo con ID {node_id}")
+        with transaction():
+            self._links.delete_by_node(node_id)
+            if not self._repo.delete(node_id):
+                raise RuntimeError(f"No se pudo eliminar el nodo con ID {node_id}")
         return True

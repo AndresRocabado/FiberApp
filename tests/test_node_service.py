@@ -106,6 +106,37 @@ class TestDeleteNode:
             service.delete_node(9999)
 
 
+class TestAtomicity:
+    def _node_with_link(self, service):
+        a = service.create_node("A", "Bogota", "Central", "Activo")
+        b = service.create_node("B", "Cali", "Acceso", "Activo")
+        LinkService().create_link(a.id, b.id, 5.0, 10.0, "Activo")
+        return a
+
+    def test_delete_rolls_back_links_when_node_delete_fails(self, service, monkeypatch):
+        a = self._node_with_link(service)
+
+        def fail(_node_id):
+            raise RuntimeError("boom")
+        monkeypatch.setattr(service._repo, "delete", fail)
+
+        with pytest.raises(RuntimeError):
+            service.delete_node(a.id)
+        assert len(LinkService().get_all_links()) == 1
+
+    def test_restore_rolls_back_node_when_link_restore_fails(self, service, monkeypatch):
+        a = self._node_with_link(service)
+        service.delete_node(a.id)
+
+        def fail(_node_id):
+            raise RuntimeError("boom")
+        monkeypatch.setattr(service._links, "restore_by_node", fail)
+
+        with pytest.raises(RuntimeError):
+            service.restore_node(a.id)
+        assert [n.id for n in service.get_deleted_nodes()] == [a.id]
+
+
 class TestNameReuseAfterDelete:
     def test_can_create_node_with_name_of_deleted_node(self, service):
         old = service.create_node("Reusado", "Bogota", "Central", "Activo")

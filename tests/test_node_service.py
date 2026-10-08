@@ -7,7 +7,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import pytest
 
 from database.connection import get_connection
-from database.schema import initialize_database
+from database import schema
+from database.schema import MIGRATIONS, get_schema_version, initialize_database
 from src.services.link_service import LinkService
 from src.services.node_service import NodeService
 
@@ -164,6 +165,7 @@ class TestLegacySchemaMigration:
         with get_connection() as conn:
             conn.execute("DROP TABLE IF EXISTS fiber_links")
             conn.execute("DROP TABLE IF EXISTS nodes")
+            conn.execute("DROP TABLE IF EXISTS schema_version")
             conn.execute("""
                 CREATE TABLE nodes (
                     id         INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -229,6 +231,32 @@ class TestLegacySchemaMigration:
             assert conn.execute("PRAGMA foreign_key_check").fetchall() == []
             with pytest.raises(Exception, match="FOREIGN KEY"):
                 conn.execute("DELETE FROM nodes WHERE id = 1")
+
+    def test_legacy_database_ends_at_latest_version(self):
+        self._create_legacy_schema()
+        initialize_database()
+        with get_connection() as conn:
+            assert get_schema_version(conn) == MIGRATIONS[-1][0]
+
+    def test_applied_migrations_are_not_run_again(self, monkeypatch):
+        calls = []
+        monkeypatch.setattr(schema, "MIGRATIONS", schema.MIGRATIONS + [(999, calls.append)])
+        initialize_database()
+        initialize_database()
+        assert len(calls) == 1
+
+    def test_failing_migration_is_rolled_back_and_raised(self, monkeypatch):
+        def broken(conn):
+            conn.execute("ALTER TABLE nodes ADD COLUMN half_done TEXT")
+            conn.execute("SELECT * FROM missing_table")
+
+        monkeypatch.setattr(schema, "MIGRATIONS", schema.MIGRATIONS + [(999, broken)])
+        with pytest.raises(Exception, match="missing_table"):
+            initialize_database()
+        with get_connection() as conn:
+            assert get_schema_version(conn) == MIGRATIONS[-1][0]
+            columns = [row["name"] for row in conn.execute("PRAGMA table_info(nodes)")]
+            assert "half_done" not in columns
 
     def test_active_names_stay_unique_at_db_level(self):
         initialize_database()

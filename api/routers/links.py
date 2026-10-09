@@ -83,8 +83,6 @@ def delete_link(link_id: int):
         _svc.delete_link(link_id)
     except NotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
-    except Exception as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
 
 
 def _to_out(lnk) -> dict:

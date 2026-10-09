@@ -81,8 +81,6 @@ def delete_node(node_id: int):
         _svc.delete_node(node_id)
     except NotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
-    except Exception as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
 
 
 def _to_out(node) -> dict:

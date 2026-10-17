@@ -129,6 +129,13 @@ def _m006_indexes(conn: sqlite3.Connection) -> None:
     conn.execute("CREATE INDEX IF NOT EXISTS idx_links_status     ON fiber_links(status)")
 
 
+def _m007_link_node_indexes(conn: sqlite3.Connection) -> None:
+    # SQLite doesn't index foreign keys on its own; links are looked up by either
+    # endpoint when listing, trashing or restoring a node's links.
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_links_origin      ON fiber_links(origin_node_id)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_links_destination ON fiber_links(destination_node_id)")
+
+
 # Append new migrations at the end; never renumber or edit one already released.
 MIGRATIONS: List[Tuple[int, Callable[[sqlite3.Connection], None]]] = [
     (1, _m001_initial_tables),
@@ -137,6 +144,7 @@ MIGRATIONS: List[Tuple[int, Callable[[sqlite3.Connection], None]]] = [
     (4, _m004_deleted_by_node),
     (5, _m005_unique_active_node_names),
     (6, _m006_indexes),
+    (7, _m007_link_node_indexes),
 ]
 
 

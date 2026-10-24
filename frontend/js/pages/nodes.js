@@ -113,7 +113,7 @@ async function renderNodes(container) {
             <div id="node-form-area"></div>
             <div class="table-toolbar">
                 <input type="search" id="nodes-search" class="search-input" placeholder="${t('search_placeholder')}">
-                <a href="${API.exportNodesUrl()}" class="btn btn-outline" download>${t("btn_export_csv")}</a>
+                <button class="btn btn-outline" data-export="nodes">${t("btn_export_csv")}</button>
             </div>
             <p class="records-count" id="nodes-count"></p>
             <div class="table-wrapper">

@@ -125,7 +125,7 @@ async function renderLinks(container) {
             <div id="link-form-area"></div>
             <div class="table-toolbar">
                 <input type="search" id="links-search" class="search-input" placeholder="${t('search_placeholder')}">
-                <a href="${API.exportLinksUrl()}" class="btn btn-outline" download>${t("btn_export_csv")}</a>
+                <button class="btn btn-outline" data-export="links">${t("btn_export_csv")}</button>
             </div>
             <p class="records-count" id="links-count"></p>
             <div class="table-wrapper">

@@ -63,9 +63,9 @@ async function renderReports(container) {
 
         <h2 class="section-title">${t("report_export")}</h2>
         <div class="export-buttons">
-            <a href="${API.exportNodesUrl()}"  class="btn btn-outline" download>${t("btn_export_nodes")}</a>
-            <a href="${API.exportLinksUrl()}"  class="btn btn-outline" download>${t("btn_export_links")}</a>
-            <a href="${API.exportReportUrl()}" class="btn btn-outline" download>${t("btn_export_report")}</a>
+            <button class="btn btn-outline" data-export="nodes">${t("btn_export_nodes")}</button>
+            <button class="btn btn-outline" data-export="links">${t("btn_export_links")}</button>
+            <button class="btn btn-outline" data-export="reports">${t("btn_export_report")}</button>
         </div>
     `;
 }

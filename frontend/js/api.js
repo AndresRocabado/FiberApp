@@ -1,5 +1,5 @@
 const API = (() => {
-    async function request(method, path, body = null) {
+    async function send(method, path, body = null) {
         const opts = {
             method,
             headers: { "Content-Type": "application/json" },
@@ -16,11 +16,31 @@ const API = (() => {
             document.getElementById("page-content").innerHTML = "";
             throw new Error("Sesión expirada. Iniciá sesión nuevamente.");
         }
+        return res;
+    }
 
+    async function request(method, path, body = null) {
+        const res = await send(method, path, body);
         if (res.status === 204) return null;
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail ?? "Error");
         return data;
+    }
+
+    // Plain <a href> downloads can't send the Authorization header, so fetch the file and save it as a blob
+    async function download(path) {
+        const res = await send("GET", path);
+        if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.detail ?? "Error");
+        }
+        const match    = /filename="?([^";]+)"?/.exec(res.headers.get("Content-Disposition") ?? "");
+        const url      = URL.createObjectURL(await res.blob());
+        const a        = document.createElement("a");
+        a.href         = url;
+        a.download     = match ? match[1] : "export.csv";
+        a.click();
+        URL.revokeObjectURL(url);
     }
 
     return {
@@ -59,9 +79,7 @@ const API = (() => {
         // Reports
         getReport:   ()           => request("GET",    "/reports"),
 
-        // Exports (direct download links)
-        exportNodesUrl:  () => "/api/nodes/export/csv",
-        exportLinksUrl:  () => "/api/links/export/csv",
-        exportReportUrl: () => "/api/reports/export/csv",
+        // Exports — kind is "nodes", "links" or "reports"
+        exportCsv:   (kind)       => download(`/${kind}/export/csv`),
     };
 })();

@@ -97,13 +97,13 @@
 <!-- Chart.js from CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
-<script src="/js/i18n.js?v=4"></script>
-<script src="/js/api.js?v=4"></script>
-<script src="/js/pages/dashboard.js?v=4"></script>
-<script src="/js/pages/nodes.js?v=4"></script>
-<script src="/js/pages/links.js?v=4"></script>
-<script src="/js/pages/reports.js?v=4"></script>
-<script src="/js/pages/trash.js?v=4"></script>
+<script src="/js/i18n.js?v=5"></script>
+<script src="/js/api.js?v=5"></script>
+<script src="/js/pages/dashboard.js?v=5"></script>
+<script src="/js/pages/nodes.js?v=5"></script>
+<script src="/js/pages/links.js?v=5"></script>
+<script src="/js/pages/reports.js?v=5"></script>
+<script src="/js/pages/trash.js?v=5"></script>
 
 <script>
 // ─── Helpers ──────────────────────────────────────────────────────────────
@@ -200,6 +200,16 @@ document.querySelectorAll(".nav-item").forEach(el => {
             navigate(page);
         }
     });
+});
+
+// CSV export buttons on any page (<button data-export="nodes|links|reports">)
+document.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-export]");
+    if (!btn) return;
+    btn.disabled = true;
+    API.exportCsv(btn.dataset.export)
+        .catch(err => showToast(err.message))
+        .finally(() => { btn.disabled = false; });
 });
 
 // ─── i18n ─────────────────────────────────────────────────────────────────

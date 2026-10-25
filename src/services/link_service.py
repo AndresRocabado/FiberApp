@@ -88,7 +88,7 @@ class LinkService:
         return self._links.get_deleted()
 
     def restore_link(self, link_id: int) -> bool:
-        link = next((l for l in self._links.get_deleted() if l.id == link_id), None)
+        link = self._links.get_deleted_by_id(link_id)
         if not link:
             raise NotFoundError(f"Enlace con ID {link_id} no encontrado en la papelera")
         for node_id in (link.origin_node_id, link.destination_node_id):

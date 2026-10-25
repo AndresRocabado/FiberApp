@@ -63,6 +63,13 @@ class NodeRepository(BaseRepository[Node]):
             ).fetchall()
         return [Node.from_row(r) for r in rows]
 
+    def get_deleted_by_id(self, node_id: int) -> Optional[Node]:
+        with get_connection() as conn:
+            row = conn.execute(
+                "SELECT * FROM nodes WHERE id = ? AND deleted_at IS NOT NULL", (node_id,)
+            ).fetchone()
+        return Node.from_row(row) if row else None
+
     def restore(self, node_id: int) -> bool:
         with get_connection() as conn:
             cursor = conn.execute(

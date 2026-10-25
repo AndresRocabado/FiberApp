@@ -20,6 +20,7 @@ def get_report():
         "inactive_links":    r.inactive_links,
         "maintenance_links": r.maintenance_links,
         "nodes_by_city":     r.nodes_by_city,
+        "isolated_nodes":    r.isolated_nodes,
     }
 
 

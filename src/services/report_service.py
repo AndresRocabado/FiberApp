@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Dict
+from typing import Dict, List
 
 from database.connection import get_connection
 
@@ -13,6 +13,7 @@ class NetworkReport:
     active_links:       int
     inactive_links:     int
     maintenance_links:  int
+    isolated_nodes:     List[Dict] = field(default_factory=list)  # active nodes with no active links
 
 
 class ReportService:
@@ -33,6 +34,18 @@ class ReportService:
             ).fetchall()
             nodes_by_city = {r["city"]: r["cnt"] for r in city_rows}
 
+            isolated_rows = conn.execute("""
+                SELECT id, name, city FROM nodes n
+                WHERE  n.deleted_at IS NULL
+                  AND  NOT EXISTS (
+                      SELECT 1 FROM fiber_links fl
+                      WHERE  fl.deleted_at IS NULL
+                        AND  (fl.origin_node_id = n.id OR fl.destination_node_id = n.id)
+                  )
+                ORDER BY n.name
+            """).fetchall()
+            isolated_nodes = [dict(r) for r in isolated_rows]
+
             def count_links(status: str) -> int:
                 return conn.execute(
                     "SELECT COUNT(*) FROM fiber_links WHERE status = ? AND deleted_at IS NULL", (status,)
@@ -50,4 +63,5 @@ class ReportService:
             active_links=active,
             inactive_links=inactive,
             maintenance_links=maintenance,
+            isolated_nodes=isolated_nodes,
         )

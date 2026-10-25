@@ -65,7 +65,7 @@ class NodeService:
         return self._repo.get_deleted()
 
     def restore_node(self, node_id: int) -> bool:
-        node = next((n for n in self._repo.get_deleted() if n.id == node_id), None)
+        node = self._repo.get_deleted_by_id(node_id)
         if not node:
             raise NotFoundError(f"Nodo con ID {node_id} no encontrado en la papelera")
         with transaction():

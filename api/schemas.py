@@ -66,3 +66,4 @@ class ReportOut(BaseModel):
     inactive_links:    int
     maintenance_links: int
     nodes_by_city:     dict
+    isolated_nodes:    list

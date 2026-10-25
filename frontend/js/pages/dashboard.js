@@ -2,7 +2,7 @@ async function renderDashboard(container) {
     const { t } = I18n;
     container.innerHTML = `<div class="loading">...</div>`;
 
-    const [report, nodes, links] = await Promise.all([API.getReport(), API.getNodes(), API.getLinks()]);
+    const report = await API.getReport();
 
     container.innerHTML = `
         <h1 class="page-title">Dashboard</h1>
@@ -27,8 +27,7 @@ async function renderDashboard(container) {
         </div>
 
         ${(() => {
-            const connected = new Set(links.flatMap(l => [l.origin_node_id, l.destination_node_id]));
-            const isolated  = nodes.filter(n => !connected.has(n.id));
+            const isolated = report.isolated_nodes;
             if (!isolated.length) return "";
             return `<div class="alert alert-warning isolated-alert">
                 <strong>⚠ ${t("isolated_nodes_title")}:</strong> ${t("isolated_nodes_desc")}

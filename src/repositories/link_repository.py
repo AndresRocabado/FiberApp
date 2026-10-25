@@ -14,6 +14,17 @@ _SELECT_WITH_NAMES = """
     WHERE  fl.deleted_at IS NULL
 """
 
+# LEFT JOIN: a trashed link's nodes may be gone too
+_SELECT_DELETED_WITH_NAMES = """
+    SELECT fl.*,
+           n1.name AS origin_node_name,
+           n2.name AS destination_node_name
+    FROM   fiber_links fl
+    LEFT JOIN nodes n1 ON fl.origin_node_id      = n1.id
+    LEFT JOIN nodes n2 ON fl.destination_node_id = n2.id
+    WHERE  fl.deleted_at IS NOT NULL
+"""
+
 
 class LinkRepository(BaseRepository[FiberLink]):
 
@@ -78,19 +89,16 @@ class LinkRepository(BaseRepository[FiberLink]):
             return cursor.rowcount > 0
 
     def get_deleted(self) -> list:
-        sql = """
-            SELECT fl.*,
-                   n1.name AS origin_node_name,
-                   n2.name AS destination_node_name
-            FROM   fiber_links fl
-            LEFT JOIN nodes n1 ON fl.origin_node_id      = n1.id
-            LEFT JOIN nodes n2 ON fl.destination_node_id = n2.id
-            WHERE  fl.deleted_at IS NOT NULL
-            ORDER BY fl.deleted_at DESC
-        """
+        sql = _SELECT_DELETED_WITH_NAMES + " ORDER BY fl.deleted_at DESC"
         with get_connection() as conn:
             rows = conn.execute(sql).fetchall()
         return [FiberLink.from_row(r) for r in rows]
+
+    def get_deleted_by_id(self, link_id: int) -> Optional[FiberLink]:
+        sql = _SELECT_DELETED_WITH_NAMES + " AND fl.id = ?"
+        with get_connection() as conn:
+            row = conn.execute(sql, (link_id,)).fetchone()
+        return FiberLink.from_row(row) if row else None
 
     def restore(self, link_id: int) -> bool:
         with get_connection() as conn:

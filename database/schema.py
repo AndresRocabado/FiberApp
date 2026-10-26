@@ -174,6 +174,8 @@ def _apply_migration(conn: sqlite3.Connection, version: int, migrate) -> None:
 
 def initialize_database(drop_existing: bool = False) -> None:
     with get_connection() as conn:
+        # Persisted in the database file; lets reads proceed while a write is in progress.
+        conn.execute("PRAGMA journal_mode = WAL")
         if drop_existing:
             conn.execute("DROP TABLE IF EXISTS fiber_links")
             conn.execute("DROP TABLE IF EXISTS nodes")

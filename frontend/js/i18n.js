@@ -3,7 +3,7 @@ const I18n = (() => {
     let _lang = localStorage.getItem("lang") || "es";
 
     async function load(lang) {
-        const res = await fetch(`/locales/${lang}.json?v=${Date.now()}`);
+        const res = await fetch(`/locales/${lang}.json?v=6`);
         _strings = await res.json();
         _lang = lang;
         localStorage.setItem("lang", lang);

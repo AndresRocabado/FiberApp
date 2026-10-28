@@ -83,8 +83,8 @@ async function renderNodes(container) {
                 </tr>`).join("");
 
         tbody.querySelectorAll(".btn-edit-node").forEach(btn => {
-            btn.onclick = async () => {
-                const node = await API.getNode(+btn.dataset.id);
+            btn.onclick = () => {
+                const node = _nodes.find(n => n.id === +btn.dataset.id);
                 showNodeForm(node, _cities, reload);
             };
         });

@@ -87,8 +87,8 @@ async function renderLinks(container) {
                 </tr>`).join("");
 
         tbody.querySelectorAll(".btn-edit-link").forEach(btn => {
-            btn.onclick = async () => {
-                const lnk = await API.getLink(+btn.dataset.id);
+            btn.onclick = () => {
+                const lnk = _links.find(l => l.id === +btn.dataset.id);
                 showLinkForm(lnk, _nodes, reload);
             };
         });

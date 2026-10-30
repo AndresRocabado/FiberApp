@@ -1,8 +1,14 @@
+// Chart.js keeps a reference to every instance, so destroy the previous ones before redrawing
+let dashboardCharts = [];
+
 async function renderDashboard(container) {
     const { t } = I18n;
     container.innerHTML = `<div class="loading">...</div>`;
 
     const report = await API.getReport();
+
+    dashboardCharts.forEach(chart => chart.destroy());
+    dashboardCharts = [];
 
     container.innerHTML = `
         <h1 class="page-title">Dashboard</h1>
@@ -50,7 +56,7 @@ async function renderDashboard(container) {
     // Nodes by city bar chart
     const cityLabels  = Object.keys(report.nodes_by_city);
     const cityValues  = Object.values(report.nodes_by_city);
-    new Chart(document.getElementById("cityChart"), {
+    dashboardCharts.push(new Chart(document.getElementById("cityChart"), {
         type: "bar",
         data: {
             labels: cityLabels,
@@ -64,7 +70,7 @@ async function renderDashboard(container) {
             plugins: { legend: { display: false } },
             scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
         },
-    });
+    }));
 
     // Link status doughnut chart
     const statusColors = {
@@ -72,7 +78,7 @@ async function renderDashboard(container) {
         [t("status_inactive")]:    "#dc3545",
         [t("status_maintenance")]: "#ffc107",
     };
-    new Chart(document.getElementById("statusChart"), {
+    dashboardCharts.push(new Chart(document.getElementById("statusChart"), {
         type: "doughnut",
         data: {
             labels: Object.keys(statusColors),
@@ -86,5 +92,5 @@ async function renderDashboard(container) {
             plugins: { legend: { position: "bottom" } },
             cutout: "65%",
         },
-    });
+    }));
 }
